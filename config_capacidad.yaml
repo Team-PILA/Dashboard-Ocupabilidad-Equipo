@@ -1,0 +1,42 @@
+# Bloque para pegar al final de config.yaml (y borrar la línea capacidad_diaria_horas).
+# Lo lee capacidad.Equipo(config).
+
+capacidad_por_condicion:   # horas disponibles por día, de lunes a domingo
+  Contratado:  [9, 9, 9, 9, 5, 0, 0]
+  Trainee Pro: [9, 9, 9, 9, 5, 0, 0]
+  Trainee Pre: [6, 6, 6, 6, 6, 0, 0]
+
+# nombre        = cómo se muestra en el dashboard
+# nombre_notion = cómo aparece en Notion (llave de relación; no importa el orden ni las tildes)
+# incluir: false = se ignora por completo (horas y capacidad)
+equipo:
+  - {nombre: "Gianfranco Fernandez", nombre_notion: "Gianfranco Fernandez", condicion: "Contratado"}
+  - {nombre: "Ariana Amayo",         nombre_notion: "Ariana Amayo",         condicion: "Contratado"}
+  - {nombre: "Anghelo Aguirre",      nombre_notion: "Anghelo Aguirre",      condicion: "Contratado"}
+  - {nombre: "Marilyn Sáenz",        nombre_notion: "Marilyn Sáenz Segura", condicion: "Contratado"}
+  - {nombre: "Enrique Rioja",        nombre_notion: "Rioja, Enrique",       condicion: "Trainee Pro"}
+  - {nombre: "Sofía Soto",           nombre_notion: "Soto, Ana",            condicion: "Trainee Pre"}
+  - {nombre: "Andres Perez",         nombre_notion: "Andres Perez",         condicion: "Contratado", incluir: false}
+
+# Feriados 2026 (hay que ampliar la lista antes de enero de 2027)
+feriados:
+  - "2026-01-01"   # Año nuevo
+  - "2026-04-02"   # Jueves santo
+  - "2026-04-03"   # Viernes santo
+  - "2026-05-01"   # Día del trabajador
+  - "2026-06-07"   # Día de la bandera
+  - "2026-06-29"   # San Pedro y San Pablo
+  - "2026-07-23"   # Fuerza Aérea
+  - "2026-07-28"   # Fiestas patrias
+  - "2026-07-29"   # Fiestas patrias
+  - "2026-08-06"   # Batalla de Junín
+  - "2026-08-30"   # Santa Rosa de Lima
+  - "2026-10-08"   # Combate de Angamos
+  - "2026-11-01"   # Día de todos los santos
+  - "2026-12-08"   # Inmaculada Concepción
+  - "2026-12-09"   # Batalla de Ayacucho
+  - "2026-12-25"   # Navidad
+
+umbrales_carga:
+  sobrecarga: 0.91   # mayor a este valor
+  adecuada: 0.70     # mayor a este valor, hasta el de sobrecarga

@@ -1,0 +1,99 @@
+# Configuración del dashboard de ocupabilidad.
+# Completa los IDs de cada base de Notion (los 32 caracteres del enlace de la base,
+# antes del "?v="). Recuerda compartir cada base con tu integración de Notion
+# (menú "..." de la base > Conexiones).
+
+notion:
+  version: "2022-06-28"
+  databases:
+      intervenciones: "3fe54bfd820780e9a354e5620df5bbb0"
+      programas: "8b754bfd820783f89db101f21f3180ce"
+      actividades_pm: "3fe54bfd8207800d8392fdd2c9a16ff7"
+      actividades_entregables: "3fe54bfd820780cd8dcbf2438a75dd9d"
+      tareas_extracurriculares: "21c54bfd82078373a78e81819573e4b3"
+
+# Nombres exactos de las columnas en Notion (según tus capturas).
+# Si alguien renombra una columna, solo se cambia aquí.
+columnas:
+  intervenciones:
+    proyecto: "Proyecto"
+    tipo_proyecto: "Tipo de Proyecto"
+    product_owner: "Product Owner"
+    sponsor: "Sponsor"
+    status: "Status"
+  actividades_pm:
+    actividad: "Actividad"
+    personas: "PM / Team Member"
+    horas_hoy: "HH Asignadas Hoy"
+    horas_plan: "HH Plan"
+    horas_reales: "HH Acumuladas"
+    proyecto: "Proyecto"            # relación
+    tipos_entregable: "Entregable"  # multi-select
+    estado: "Estado"
+  actividades_entregables:          # el nombre de la actividad es el título de la página
+    personas: "Team Member"
+    horas_hoy: "HH Asignadas Hoy"
+    horas_plan: "Horas Asignadas PI"
+    horas_reales: "Horas Reales PI"
+    proyecto: "Proyecto"            # relación
+    tipos_entregable: "Entregable (Descripción)"  # select
+    estado: "Estado"
+  tareas_extracurriculares:
+    actividad: "Actividad-Tarea"
+    personas: "Asignado a"
+    horas_hoy: "Horas Asignadas Hoy"
+    horas_plan: "Horas Asignadas Totales"
+    horas_reales: "Horas Reales Totales"
+    proyecto: "Proyecto/Servicio"   # select (sin proyecto_id)
+    programa: "Programas"           # relación -> base programas
+    tiene_entregable: "¿Tiene Entregable?"
+    estado: "Estado"
+
+# Programa fijo de las actividades PM (igual que el título en la base Programas).
+programa_pm: "Modelo de PM"
+
+# Rutas de salida. Para respaldo, apunta snapshots a una carpeta sincronizada
+# (OneDrive o Drive para escritorio) si TI lo permite.
+rutas:
+  raw: "data/raw"
+  processed: "data/processed"
+  snapshots: "data/snapshots"
+
+# Zona horaria usada para la fecha de cada foto diaria.
+zona_horaria: "America/Lima"
+
+capacidad_por_condicion:   # horas disponibles por día, de lunes a domingo
+  Contratado:  [9, 9, 9, 9, 5, 0, 0]
+  Trainee Pro: [9, 9, 9, 9, 5, 0, 0]
+  Trainee Pre: [6, 6, 6, 6, 6, 0, 0]
+
+equipo:
+  - {nombre: "Gianfranco Fernandez", nombre_notion: "Gianfranco Fernandez",  condicion: "Contratado"}
+  - {nombre: "Ariana Amayo",         nombre_notion: "Ariana Amayo",          condicion: "Contratado"}
+  - {nombre: "Anghelo Aguirre",      nombre_notion: "Anghelo Aguirre",       condicion: "Contratado"}
+  - {nombre: "Marilyn Sáenz",        nombre_notion: "Marilyn Sáenz Segura",  condicion: "Contratado"}
+  - {nombre: "Enrique Rioja",        nombre_notion: "Rioja, Enrique",        condicion: "Trainee Pro"}
+  - {nombre: "Sofía Soto",             nombre_notion: "Soto, Ana",             condicion: "Trainee Pre"}
+  - {nombre: "Andres Perez",         nombre_notion: "Andres_PF",             condicion: "Contratado", incluir: false} # jefe
+
+feriados:
+  - "2026-01-01"
+  - "2026-04-02"
+  - "2026-04-03"
+  - "2026-05-01"
+  - "2026-06-07"
+  - "2026-06-29"
+  - "2026-07-23"
+  - "2026-07-28"
+  - "2026-07-29"
+  - "2026-08-06"
+  - "2026-08-30"
+  - "2026-10-08"
+  - "2026-11-01"
+  - "2026-12-08"
+  - "2026-12-09"
+  - "2026-12-25"
+
+umbrales_carga:
+  sobrecarga: 0.91   # mayor a este valor
+  adecuada: 0.70     # mayor a este valor, hasta el de sobrecarga
