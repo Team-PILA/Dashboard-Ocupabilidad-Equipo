@@ -1,43 +1,57 @@
 # Dashboard de Ocupabilidad del Equipo
 
-Notion -> Python -> CSV local (por ahora) -> Supabase (después) -> Streamlit.
+Dashboard en Streamlit que mide la ocupabilidad del equipo a partir de las horas que se registran en Notion.
 
-## Preparación (Fase 0)
+## Qué muestra
+- **Ocupabilidad diaria** por integrante, apilada por estado (Done, En curso, Stuck, Sin empezar).
+- Ocupabilidad del área y por trabajador en un rango de fechas.
+- Horas por proyecto, por programa "Modelo de PM" y por Product Owner × persona.
+- Promedio de horas por tipo de entregable.
+- Exactitud de planificación (global y por proyecto).
+- Alertas de calidad de datos.
 
-1. Crea una integración en Notion (Configuración > Conexiones > Desarrollar integraciones)
-   y copia el token a un archivo `.env` (ver `.env.example`).
-2. Comparte con esa integración las 5 bases: Intervenciones, Programas,
-   Actividades PM, Actividades & Entregables y Tareas Extracurriculares
-   (menú "..." de la base > Conexiones).
-3. Copia el ID de cada base (los 32 caracteres del enlace, antes de `?v=`) en `config.yaml`.
-4. Instala dependencias:
+## Cómo funciona
+Notion API → extractores en Python → CSV en `data/` → Streamlit.
 
-   ```
-   py -3.14 -m venv .venv
-   .venv\Scripts\Activate.ps1       # Windows
-   pip install -r requirements.txt
-   ```
+Cada día laborable a las 17:30 (hora de Lima) se toma una **foto** de la columna "Horas Asignadas Hoy" y se guarda en `data/snapshots/`. Con esas fotos se arma el histórico.
+
+## Requisitos
+- Python 3.14 (3.15 aún no tiene instalador de PyYAML para Windows)
+- Una integración de Notion compartida con las bases (menú "..." > Conexiones)
+
+## Instalación
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Crea un archivo `.env` en la raíz:
+```
+NOTION_TOKEN=tu_token
+```
+Completa los IDs de las bases en `config.yaml`.
 
 ## Uso
-
-```
-python -m extract.intervenciones     # genera data/processed/dim_intervenciones.csv
-python -m pytest -q                  # pruebas del parseo (no usan la API)
+```bash
+python build_master.py --extraer   # extrae de Notion y genera la foto del día
+streamlit run app.py               # abre el dashboard
+python -m pytest -q                # pruebas
 ```
 
 ## Estructura
+| Archivo | Función |
+|---|---|
+| `extract/` | Extractores de Notion |
+| `build_master.py` | Foto diaria, histórico y registro de corridas |
+| `capacidad.py` | Capacidad y reglas de ocupabilidad |
+| `kpis.py` | Cálculo de indicadores |
+| `vista.py` | Formatos y tablas del dashboard |
+| `app.py` | Dashboard Streamlit |
+| `config.yaml` | Bases de Notion y parámetros |
 
-```
-config.yaml        IDs de bases, nombres de columnas, capacidad, rutas
-extract/           cliente de Notion y un extractor por fuente
-data/raw/          salida cruda (ignorada por git)
-data/processed/    CSV normalizados y dimensiones (ignorada por git)
-data/snapshots/    una foto por día: snapshot_AAAA-MM-DD.csv (ignorada por git)
-tests/             pruebas
-```
+## Seguridad
+`.env` y `data/` no se suben al repo (están en `.gitignore`).
 
-## Notas
-
-- `data/` y `.env` están en `.gitignore`: contienen horas por persona y el token.
-- "HH Asignadas Hoy" solo existe en el día actual en Notion; el histórico solo
-  se acumula guardando una foto diaria (a las 5:30 pm hora de Lima).
+## Estado
+MVP en pruebas: el histórico recién empieza a acumularse.
