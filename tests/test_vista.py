@@ -133,7 +133,8 @@ def test_ultima_corrida():
     reg = tk._registro()
     reg["ejecutado_en"] = reg["fecha"] + "T17:31:00-05:00"
     u = vista.ultima_corrida(reg)
-    assert u == {"fecha": date(2026, 10, 24), "ejecutado_en": "2026-10-24T17:31:00-05:00"}
+    assert u == {"fecha": date(2026, 10, 24), "ejecutado_en": "2026-10-24T17:31:00-05:00",
+                 "momento": "cierre"}                                   # sin columna momento = cierre
     assert vista.ultima_corrida(pd.DataFrame(columns=kpis.COLUMNAS_REGISTRO)) is None
     assert vista.ultima_corrida(reg.assign(ok=False)) is None
 
@@ -154,3 +155,17 @@ def test_aviso_de_ultima_foto():
     # fin de semana: la foto del viernes es suficiente
     assert vista.aviso_ultima_foto(f(date(2026, 10, 23)), EQ, date(2026, 10, 24)) is None
     assert vista.aviso_ultima_foto(f(date(2026, 10, 22)), EQ, date(2026, 10, 26)) is not None
+
+
+def test_fotos_de_manana_y_de_cierre_se_distinguen():
+    reg = tk._registro().assign(momento="cierre", ejecutado_en="x")
+    manana = pd.DataFrame({"fecha": ["2026-10-26"], "ok": [True], "momento": ["manana"],
+                           "ejecutado_en": ["2026-10-26T08:31:00-05:00"]})
+    reg = pd.concat([reg, manana], ignore_index=True)
+    assert vista.fechas_con_foto(reg)[-1] == date(2026, 10, 24)                    # rangos: solo cierre
+    assert vista.fechas_con_foto(reg, momento=None)[-1] == date(2026, 10, 26)      # calendario diario
+    assert vista.fechas_con_foto(reg, momento="manana") == [date(2026, 10, 26)]
+    u = vista.ultima_corrida(reg)
+    assert u["fecha"] == date(2026, 10, 26) and u["momento"] == "manana"
+    assert vista.ultima_corrida(reg, "cierre")["fecha"] == date(2026, 10, 24)
+    assert vista.rango_por_defecto(reg, date(2026, 10, 30)) == (date(2026, 10, 19), date(2026, 10, 24))

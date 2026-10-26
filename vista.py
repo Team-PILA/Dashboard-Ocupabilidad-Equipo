@@ -25,6 +25,9 @@ COLOR_ESTADO = {
 }
 SIN_DATO = "—"
 
+# Las dos fotos del día: la planificación de la mañana y el cierre de turno.
+ETIQUETA_MOMENTO = {"manana": "Early Morning 8:30", "cierre": "Cierre de turno 17:30"}
+
 # Estado de la actividad en el gráfico diario. Done y Stuck son estados "de verdad" (verde y rojo
 # de estado); En curso usa el azul de la paleta y Sin empezar un gris neutro. Siempre hay leyenda.
 COLOR_ESTADO_TAREA = {
@@ -151,15 +154,18 @@ def valor_filtro(seleccion: list[str], todas: list[str]) -> Optional[list[str]]:
     return None if set(seleccion) == set(todas) else list(seleccion)
 
 
-def _fechas_ok(registro: pd.DataFrame) -> list[date]:
-    if registro is None or registro.empty or not {"fecha", "ok"} <= set(registro.columns):
-        return []
-    return sorted({a_fecha(f) for f in registro.loc[kpis._bool(registro["ok"]), "fecha"]})
+def _fechas_ok(registro: pd.DataFrame, momento: Optional[str] = "cierre") -> list[date]:
+    """Fechas con foto exitosa del momento indicado (None = de cualquiera)."""
+    return sorted({a_fecha(f) for f in kpis.registro_ok(registro, momento)["fecha"]})
 
 
-def fechas_con_foto(registro: pd.DataFrame, ini: object = None, fin: object = None) -> list[date]:
-    """Días con foto (opcionalmente dentro de un rango), de más antiguo a más reciente."""
-    fechas = _fechas_ok(registro)
+def fechas_con_foto(registro: pd.DataFrame, ini: object = None, fin: object = None,
+                    momento: Optional[str] = "cierre") -> list[date]:
+    """Días con foto (opcionalmente dentro de un rango), de más antiguo a más reciente.
+
+    Por defecto solo cuentan las fotos de cierre (las que usan los indicadores por rango);
+    con `momento=None` cuenta cualquiera (para el calendario del detalle diario)."""
+    fechas = _fechas_ok(registro, momento)
     if ini is not None:
         fechas = [d for d in fechas if d >= a_fecha(ini)]
     if fin is not None:
@@ -196,6 +202,24 @@ def aviso_estados(sin_clasificar: list[str]) -> Optional[str]:
             + ". Se pueden agregar en `config.yaml`, clave `estados`.")
 
 
+def texto_periodo(rango_activo: bool, ini: object, fin: object) -> str:
+    """Qué periodo se está viendo, para mostrarlo siempre bajo los filtros."""
+    if rango_activo:
+        return f"Rango elegido: {fmt_fecha(ini)} – {fmt_fecha(fin)}"
+    return f"Todo el histórico: {fmt_fecha(ini)} – {fmt_fecha(fin)}"
+
+
+def aviso_rango_sin_fotos(registro: pd.DataFrame, ini: object, fin: object) -> Optional[str]:
+    """Aviso cuando el rango elegido no incluye ninguna foto (indica dónde sí hay)."""
+    if fechas_con_foto(registro, ini, fin):
+        return None
+    todas = _fechas_ok(registro)   # solo fotos de cierre, que son las que usan los rangos
+    if not todas:
+        return "Todavía no hay fotos diarias."
+    return (f"No hay fotos en el rango {fmt_fecha(ini)} – {fmt_fecha(fin)}. "
+            f"Hay fotos del {fmt_fecha(todas[0])} al {fmt_fecha(todas[-1])}.")
+
+
 def rango_por_defecto(registro: pd.DataFrame, hoy: date) -> tuple[date, date]:
     fechas = _fechas_ok(registro)
     return (fechas[0], fechas[-1]) if fechas else (hoy, hoy)
@@ -203,14 +227,20 @@ def rango_por_defecto(registro: pd.DataFrame, hoy: date) -> tuple[date, date]:
 
 # ------------------------------------------------------------------- avisos ---
 
-def ultima_corrida(registro: pd.DataFrame) -> Optional[dict]:
-    fechas = _fechas_ok(registro)
-    if not fechas:
+def ultima_corrida(registro: pd.DataFrame, momento: Optional[str] = None) -> Optional[dict]:
+    """Última corrida exitosa (de cualquier momento, o solo del indicado)."""
+    r = kpis.registro_ok(registro, momento)
+    if r.empty:
         return None
-    ultima = fechas[-1]
-    fila = registro[registro["fecha"].map(a_fecha) == ultima].iloc[-1]
-    ejecutado = fila["ejecutado_en"] if "ejecutado_en" in registro.columns else None
-    return {"fecha": ultima, "ejecutado_en": None if _vacio(ejecutado) else str(ejecutado)}
+    r = r.assign(_fecha=r["fecha"].map(a_fecha))
+    r = r[r["_fecha"] == r["_fecha"].max()]
+    if "ejecutado_en" in r.columns:
+        r = r.sort_values("ejecutado_en", na_position="first")
+    fila = r.iloc[-1]
+    ejecutado = fila["ejecutado_en"] if "ejecutado_en" in r.columns else None
+    mom = fila["momento"] if "momento" in r.columns and not _vacio(fila["momento"]) else "cierre"
+    return {"fecha": fila["_fecha"], "ejecutado_en": None if _vacio(ejecutado) else str(ejecutado),
+            "momento": str(mom)}
 
 
 def dia_laborable_anterior(equipo: Equipo, hoy: date) -> Optional[date]:

@@ -284,3 +284,89 @@ def test_horas_vacias_o_negativas_no_entran_a_la_foto():
         _correr(raiz)
         foto = _leer(raiz, "data", "snapshots", "snapshot_2026-10-22.csv")
         assert not ({"Vacía", "Negativa"} & set(foto["actividad"]))
+
+
+# ------------------------------------------------------- dos fotos por día ---
+
+def _ahora_a(dia, hora, minuto=30):
+    return datetime(dia.year, dia.month, dia.day, hora, minuto, tzinfo=LIMA)
+
+
+def test_momento_por_hora_y_nombres_de_snapshot():
+    assert bm.momento_por_hora(_ahora_a(DIA1, 8)) == "manana"
+    assert bm.momento_por_hora(_ahora_a(DIA1, 11, 59)) == "manana"
+    assert bm.momento_por_hora(_ahora_a(DIA1, 12, 0)) == "cierre"
+    assert bm.nombre_snapshot(DIA1, "cierre") == "snapshot_2026-10-22.csv"       # nombre histórico
+    assert bm.nombre_snapshot(DIA1, "manana") == "snapshot_2026-10-22_manana.csv"
+
+
+def test_foto_de_la_manana_y_de_cierre_conviven_y_no_se_pisan():
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        # 8:30: Tarea X todavía "Sin empezar", 1 h planificada
+        manana = {"Tareas": [fila("Tareas", "c1", "Tarea X", "Anghelo Aguirre", 1, estado="Sin empezar")]}
+        _escribir(raiz, manana)
+        r1 = bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 8), raiz=raiz)
+        assert r1["momento"] == "manana"
+        # 17:30: ya está "Done" y registró 3 h
+        cierre = {"Tareas": [fila("Tareas", "c1", "Tarea X", "Anghelo Aguirre", 3, estado="Done")]}
+        _escribir(raiz, cierre)
+        r2 = bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 17), raiz=raiz)
+        assert r2["momento"] == "cierre"
+        snaps = raiz / "data" / "snapshots"
+        assert (snaps / "snapshot_2026-10-22_manana.csv").exists() and (snaps / "snapshot_2026-10-22.csv").exists()
+        hist = _leer(raiz, "data", "processed", "historico_horas_diarias.csv").set_index("momento")
+        assert len(hist) == 2
+        assert hist.loc["manana", "estado"] == "Sin empezar" and float(hist.loc["manana", "horas_hoy"]) == 1.0
+        assert hist.loc["cierre", "estado"] == "Done" and float(hist.loc["cierre", "horas_hoy"]) == 3.0
+        reg = _leer(raiz, "data", "processed", "registro_corridas.csv")
+        assert sorted(reg["momento"]) == ["cierre", "manana"] and len(reg) == 2
+        assert r2["dias_en_historico"] == 1                       # un solo día, dos fotos
+
+
+def test_repetir_un_momento_solo_reemplaza_ese_momento():
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 8), raiz=raiz)
+        bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 17), raiz=raiz)
+        antes = _leer(raiz, "data", "processed", "historico_horas_diarias.csv")
+        bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 9), raiz=raiz)   # mañana otra vez
+        despues = _leer(raiz, "data", "processed", "historico_horas_diarias.csv")
+        pd.testing.assert_frame_equal(antes, despues)             # mismo resultado, sin duplicados
+        assert len(_leer(raiz, "data", "processed", "registro_corridas.csv")) == 2
+
+
+def test_momento_explicito_gana_a_la_hora_y_uno_invalido_falla():
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        r = bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 17), raiz=raiz,
+                                    momento="manana")
+        assert r["momento"] == "manana"
+        try:
+            bm.generar_foto_del_dia(_config(), fecha=DIA1, ahora=_ahora_a(DIA1, 17), raiz=raiz,
+                                    momento="tarde")
+        except ValueError as e:
+            assert "tarde" in str(e)
+        else:
+            raise AssertionError("Debió fallar")
+
+
+def test_snapshots_y_registro_antiguos_sin_momento_se_leen_como_cierre():
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        snaps = raiz / "data" / "snapshots"
+        snaps.mkdir(parents=True)
+        viejo = pd.DataFrame([{c: "x" for c in bm.COLUMNAS_FOTO if c != "momento"}])
+        viejo["fecha"], viejo["horas_hoy"] = "2026-10-20", "2"
+        viejo.to_csv(snaps / "snapshot_2026-10-20.csv", index=False)
+        viejo.to_csv(snaps / "snapshot_2026-10-21_manana.csv", index=False)      # sin columna, por nombre
+        h = bm.reconstruir_historico(snaps, raiz / "h.csv")
+        assert sorted(h["momento"]) == ["cierre", "manana"]       # por columna ausente: nombre del archivo
+        # registro viejo (sin columna momento) + una corrida nueva
+        ruta = raiz / "reg.csv"
+        pd.DataFrame({"fecha": ["2026-10-20"], "ejecutado_en": ["x"], "ok": ["True"]}).to_csv(ruta, index=False)
+        bm.registrar_corrida(ruta, {"fecha": "2026-10-20", "momento": "manana", "ejecutado_en": "y", "ok": True})
+        reg = pd.read_csv(ruta, dtype=str)
+        assert sorted(reg["momento"]) == ["cierre", "manana"]

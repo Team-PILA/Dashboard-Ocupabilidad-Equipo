@@ -3,8 +3,9 @@
 Lee los CSV de los 3 extractores (data/processed/), unifica, clasifica a las personas
 con capacidad.Equipo y escribe:
 
-  data/snapshots/snapshot_AAAA-MM-DD.csv   foto del día: una fila por persona y actividad
-                                           con horas_hoy > 0 (se SOBRESCRIBE al repetir el día)
+  data/snapshots/snapshot_AAAA-MM-DD.csv          foto de CIERRE (17:30): una fila por persona y
+                                                  actividad con horas_hoy > 0 (se SOBRESCRIBE al repetir)
+  data/snapshots/snapshot_AAAA-MM-DD_manana.csv   foto de la MAÑANA (8:30, Early Morning): la planificación
   data/processed/historico_horas_diarias.csv  consolidado, reconstruido desde TODOS los snapshots
   data/processed/estado_actual.csv         una fila por actividad (plan y reales acumulados)
   data/processed/registro_corridas.csv     una fila por día con foto (distingue "no corrió"
@@ -21,7 +22,9 @@ Garantías:
   marcadas como "desconocido" para mostrarlas en las alertas, pero no cuentan en la ocupabilidad.
 
 Uso:
-    python build_master.py                  # foto de hoy (hora de Lima) con los CSV actuales
+    python build_master.py                  # foto de hoy; momento por la hora (antes de las 12 = mañana)
+    python build_master.py --momento manana # Early Morning (8:30)
+    python build_master.py --momento cierre # cierre de turno (17:30)
     python build_master.py --extraer        # corre antes los 4 extractores contra Notion
     python build_master.py --fecha 2026-10-22 --permitir-antiguos
 """
@@ -57,19 +60,21 @@ COLUMNAS_FUENTE = [
     "horas_reales", "proyecto_id", "proyecto", "programa", "tipos_entregable",
     "tiene_entregable", "estado",
 ]
+MANANA, CIERRE = "manana", "cierre"      # momentos del día en que se toma la foto
+MOMENTOS = (MANANA, CIERRE)
 COLUMNAS_FOTO = [
     "fecha", "base_origen", "actividad_id", "actividad", "persona", "persona_display",
     "condicion", "clasificacion", "horas_hoy", "proyecto_id", "proyecto", "programa",
-    "tipos_entregable", "tiene_entregable", "estado",
+    "tipos_entregable", "tiene_entregable", "estado", "momento",
 ]
-CLAVE_FOTO = ["fecha", "base_origen", "actividad_id", "persona"]
+CLAVE_FOTO = ["fecha", "momento", "base_origen", "actividad_id", "persona"]
 COLUMNAS_ESTADO = [
     "fecha_extraccion", "base_origen", "actividad_id", "actividad", "personas",
     "horas_plan", "horas_reales", "proyecto_id", "proyecto", "programa",
     "tipos_entregable", "tiene_entregable", "estado",
 ]
 COLUMNAS_REGISTRO = [
-    "fecha", "ejecutado_en", "ok", "filas_pm", "filas_ruta", "filas_tareas",
+    "fecha", "momento", "ejecutado_en", "ok", "filas_pm", "filas_ruta", "filas_tareas",
     "filas_foto", "horas_foto", "filas_desconocidas", "horas_desconocidas",
 ]
 SIN_ASIGNAR = "Sin asignar"
@@ -137,14 +142,26 @@ def clasificar_personas(df: pd.DataFrame, equipo: Equipo) -> pd.DataFrame:
     return out
 
 
+def momento_por_hora(ahora: datetime) -> str:
+    """Antes de las 12:00 (Lima) es la foto de la mañana; desde las 12:00, la de cierre."""
+    return MANANA if ahora.hour < 12 else CIERRE
+
+
+def nombre_snapshot(fecha: date, momento: str) -> str:
+    """El cierre conserva el nombre histórico (snapshot_AAAA-MM-DD.csv); la mañana lleva sufijo."""
+    sufijo = "" if momento == CIERRE else f"_{momento}"
+    return f"snapshot_{fecha.isoformat()}{sufijo}.csv"
+
+
 def construir_foto(
-    maestro: pd.DataFrame, fecha: date, equipo: Equipo
+    maestro: pd.DataFrame, fecha: date, equipo: Equipo, momento: str = CIERRE
 ) -> tuple[pd.DataFrame, list[str]]:
     """Foto del día: filas con horas_hoy > 0, sin las personas excluidas."""
     advertencias: list[str] = []
     d = clasificar_personas(maestro, equipo)
     d = d[(d["horas_hoy"] > 0) & (d["clasificacion"] != EXCLUIDO)].copy()
     d["fecha"] = fecha.isoformat()
+    d["momento"] = momento
     d = d[COLUMNAS_FOTO]
 
     repetidas = d.duplicated(CLAVE_FOTO, keep="first")
@@ -200,15 +217,21 @@ def escribir_atomico(df: pd.DataFrame, destino: Path) -> None:
 
 
 def registrar_corrida(ruta: Path, fila: dict) -> None:
-    """Agrega la corrida del día; si ya existía esa fecha, la reemplaza."""
+    """Agrega la corrida del día y momento; si ya existía esa pareja, la reemplaza.
+
+    Un registro viejo sin columna `momento` se interpreta como de cierre.
+    """
     previo = (
         pd.read_csv(ruta, dtype=str, encoding="utf-8-sig") if ruta.exists()
         else pd.DataFrame(columns=COLUMNAS_REGISTRO)
     )
-    previo = previo[previo["fecha"] != fila["fecha"]]
+    if "momento" not in previo.columns:
+        previo["momento"] = CIERRE
+    previo["momento"] = previo["momento"].fillna(CIERRE)
+    previo = previo[~((previo["fecha"] == fila["fecha"]) & (previo["momento"] == fila["momento"]))]
     nuevo = pd.DataFrame([fila], columns=COLUMNAS_REGISTRO).astype(str)
-    frames = [f for f in (previo, nuevo) if not f.empty]
-    registro = pd.concat(frames, ignore_index=True).sort_values("fecha")
+    frames = [f for f in (previo.reindex(columns=COLUMNAS_REGISTRO), nuevo) if not f.empty]
+    registro = pd.concat(frames, ignore_index=True).sort_values(["fecha", "momento"])
     escribir_atomico(registro, ruta)
 
 
@@ -217,6 +240,8 @@ def reconstruir_historico(dir_snapshots: Path, destino: Path) -> pd.DataFrame:
     frames = []
     for archivo in sorted(dir_snapshots.glob("snapshot_*.csv")):
         df = pd.read_csv(archivo, dtype=str, encoding="utf-8-sig")
+        if "momento" not in df.columns:      # snapshots anteriores a las dos fotos diarias
+            df["momento"] = MANANA if archivo.stem.endswith(f"_{MANANA}") else CIERRE
         faltan = [c for c in COLUMNAS_FOTO if c not in df.columns]
         if faltan:
             raise ValueError(f"{archivo.name}: faltan columnas {faltan}.")
@@ -228,7 +253,7 @@ def reconstruir_historico(dir_snapshots: Path, destino: Path) -> pd.DataFrame:
     historico["horas_hoy"] = pd.to_numeric(historico["horas_hoy"], errors="coerce")
     historico = (
         historico.drop_duplicates(CLAVE_FOTO, keep="last")
-        .sort_values(["fecha", "base_origen", "persona_display", "actividad"])
+        .sort_values(["fecha", "momento", "base_origen", "persona_display", "actividad"])
         .reset_index(drop=True)
     )
     escribir_atomico(historico, destino)
@@ -249,10 +274,17 @@ def generar_foto_del_dia(
     ahora: datetime | None = None,
     raiz: Path = RAIZ,
     permitir_antiguos: bool = False,
+    momento: str | None = None,
 ) -> dict:
-    """Valida, calcula en memoria y recién entonces escribe. Devuelve un resumen."""
+    """Valida, calcula en memoria y recién entonces escribe. Devuelve un resumen.
+
+    `momento`: "manana" (Early Morning) o "cierre". Si no se indica, se decide por la hora.
+    """
     zona = ZoneInfo(config.get("zona_horaria", "America/Lima"))
     ahora = (ahora or datetime.now(zona)).astimezone(zona)
+    momento = momento or momento_por_hora(ahora)
+    if momento not in MOMENTOS:
+        raise ValueError(f"momento '{momento}' no válido. Válidos: {list(MOMENTOS)}")
     dia = a_fecha(fecha) if fecha else ahora.date()
     equipo = Equipo(config)
 
@@ -266,11 +298,12 @@ def generar_foto_del_dia(
         validar_frescura(list(rutas.values()), dia, zona)
 
     maestro = pd.concat(list(fuentes.values()), ignore_index=True)
-    foto, advertencias = construir_foto(maestro, dia, equipo)
+    foto, advertencias = construir_foto(maestro, dia, equipo, momento)
     estado = construir_estado_actual(maestro, dia, equipo)
     desconocidas = foto[foto["clasificacion"] == DESCONOCIDO]
     registro = {
         "fecha": dia.isoformat(),
+        "momento": momento,
         "ejecutado_en": ahora.isoformat(timespec="seconds"),
         "ok": True,
         "filas_pm": len(fuentes["PM"]),
@@ -283,13 +316,14 @@ def generar_foto_del_dia(
     }
 
     # 2) Escritura (cada archivo es idempotente; el histórico se deriva al final)
-    escribir_atomico(foto, snapshots / f"snapshot_{dia.isoformat()}.csv")
+    escribir_atomico(foto, snapshots / nombre_snapshot(dia, momento))
     escribir_atomico(estado, processed / "estado_actual.csv")
     registrar_corrida(processed / "registro_corridas.csv", registro)
     historico = reconstruir_historico(snapshots, processed / "historico_horas_diarias.csv")
 
     return {
         "fecha": dia,
+        "momento": momento,
         "registro": registro,
         "advertencias": advertencias,
         "dias_en_historico": historico["fecha"].nunique(),
@@ -311,6 +345,8 @@ def main() -> None:
 
     ap = argparse.ArgumentParser(description="Genera la foto diaria de ocupabilidad.")
     ap.add_argument("--fecha", help="AAAA-MM-DD (por defecto, hoy en hora de Lima)")
+    ap.add_argument("--momento", choices=MOMENTOS,
+                    help="manana (Early Morning 8:30) o cierre (17:30); por defecto, según la hora")
     ap.add_argument("--extraer", action="store_true", help="correr antes los extractores")
     ap.add_argument("--permitir-antiguos", action="store_true",
                     help="aceptar CSV de entrada de otro día")
@@ -319,7 +355,8 @@ def main() -> None:
     config = cargar_config()
     zona = ZoneInfo(config.get("zona_horaria", "America/Lima"))
     ahora = datetime.now(zona)
-    if ahora.hour < 17 and not args.fecha:
+    momento = args.momento or momento_por_hora(ahora)
+    if momento == CIERRE and ahora.hour < 17 and not args.fecha:
         print(f"Aviso: son las {ahora:%H:%M}; el equipo registra horas hasta las 17:30. "
               "Puedes volver a correrlo más tarde: reemplaza la foto del día.")
 
@@ -327,10 +364,11 @@ def main() -> None:
         ejecutar_extractores()
 
     r = generar_foto_del_dia(
-        config, fecha=args.fecha, ahora=ahora, permitir_antiguos=args.permitir_antiguos
+        config, fecha=args.fecha, ahora=ahora, permitir_antiguos=args.permitir_antiguos,
+        momento=momento,
     )
     reg = r["registro"]
-    print(f"Foto {r['fecha']}: {reg['filas_foto']} filas, {reg['horas_foto']} h "
+    print(f"Foto {r['fecha']} ({r['momento']}): {reg['filas_foto']} filas, {reg['horas_foto']} h "
           f"({r['dias_en_historico']} día(s) en el histórico).")
     if r["personas_desconocidas"]:
         print(f"Aviso: personas no reconocidas ({reg['horas_desconocidas']} h): "

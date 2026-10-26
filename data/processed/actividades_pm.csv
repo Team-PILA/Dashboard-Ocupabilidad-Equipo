@@ -1,0 +1,42 @@
+﻿base_origen,actividad_id,actividad,persona,horas_hoy,horas_plan,horas_reales,proyecto_id,proyecto,programa,tipos_entregable,tiene_entregable,estado
+PM,40554bfd-8207-8010-ac01-c7482d1d1f9a,Touchpoint de Proyecto,Ariana Amayo,0.0,1.0,,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Not started
+PM,40054bfd-8207-80dd-b97f-c9464ab8f533,Revisión de Flujos - AZ Solutions,Ariana Amayo,0.0,3.0,2.0,40054bfd-8207-800d-b196-c417be4bcd25,Inspecciones OSITRAN,Modelo de PM,,False,Done
+PM,40054bfd-8207-8030-bad4-c5abfe17c14c,Envío de correo de inicio de proyecto y transferencia de información a tercero,Ariana Amayo,0.0,1.0,8.0,40054bfd-8207-800d-b196-c417be4bcd25,Inspecciones OSITRAN,Modelo de PM,,False,Done
+PM,40054bfd-8207-80e2-a98b-f3ac8ba9cc94,Coordinación Inicio de Proyecto,Ariana Amayo,0.0,1.0,1.0,40054bfd-8207-800d-b196-c417be4bcd25,Inspecciones OSITRAN,Modelo de PM,,False,Done
+PM,40054bfd-8207-8023-a49e-da7723e8d324,Kick Off de Proyecto,Ariana Amayo,0.0,1.0,1.0,40054bfd-8207-800d-b196-c417be4bcd25,Inspecciones OSITRAN,Modelo de PM,,False,Done
+PM,40054bfd-8207-802b-ac82-d599cbcc5681,Reunión de Procesos y TI SUNAT,Ariana Amayo,0.0,1.0,1.5,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8026-8d18-d197040a6ea9,Revisión de Flujos - Kale,Ariana Amayo,0.0,8.0,8.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-80c2-ae50-ce5429810d9b,Touchpoint Kalé,Ariana Amayo,0.0,2.0,2.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-802b-9064-fe3bc5b0dc70,Entendimiento de Información IT,Ariana Amayo,0.0,1.5,1.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8013-b057-cbf6c4125224,Entendimiento Procesos Seguridad,Ariana Amayo,0.0,1.5,1.5,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8006-bd0c-ead77d89dabb,Visita Shohin,Ariana Amayo,0.0,2.5,2.5,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8067-8fa2-fed9beb1770a,Visita Frío Aéreo,Ariana Amayo,0.0,2.5,2.5,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-804d-8119-cf024c197451,Entendimiento Hellman Log.,Ariana Amayo,0.0,1.0,1.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-80ce-a530-de1081b8817d,Entendimiento de Procesos Operaciones LAP,Ariana Amayo,0.0,3.0,3.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8026-bbb1-da45d6830262,Entendimiento formatos de Procesos - Kale,Ariana Amayo,0.0,2.0,2.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8088-aa9f-d6f971f288ba,Kick Off Proy Carga,Ariana Amayo,0.0,1.0,1.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8070-906f-fb90c5810d1d,Reunión de Seguimiento de Proy de Carga,Ariana Amayo,0.0,1.0,1.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,40054bfd-8207-8097-ac90-debc29f27c05,Recopilación y análisis de información y documentos vinculados a carga: Carpeta,Ariana Amayo,0.0,2.0,2.0,40054bfd-8207-807b-ba6f-eb5c78b507c5,Carga,Modelo de PM,,False,Done
+PM,3ff54bfd-8207-817d-b6f8-de3b38d7b357,Evaluación y priorización de alternativas,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81a2-b4cc-f38db4198d06,Diseño de mejoras operativas,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81f6-a041-fa52e835a865,Presentación de Matriz SLA consensuada,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81a6-8488-f9fe17b8aaf3,Validación de Matriz SLA,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-819a-9241-cf40886db9de,Elaboración de Matriz SLA,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8157-be62-dffa94569cd3,Definición de indicadores y puntos de medición,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-812f-91b3-e3f5a88bb6a8,Definición de SLA,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8101-bbdd-c66994aaa0e2,Presentación de Matriz RASCI consensuada,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-810c-b505-effd031e0328,Validación de Matriz RASCI,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8101-9745-dee547a08914,Elaboración de Matriz RASCI,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8141-99af-fdda8363b152,Identificación de oportunidades de solución,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81eb-b1a9-ca78417e3086,Identificación de mudas,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8171-ac47-c016c3c39847,Análisis de tiempos y actividades,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81cc-9631-c637d3eac653,Presentación de Diagrama de flujo AS-IS,Sin asignar,0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81a2-859a-dff3d650a70b,Incorporación de observaciones y ajustes,"Rioja, Enrique",0.0,0.0,0.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8110-94d2-c2f3a209ceb2,Validación del flujo AS-IS con usuarios clave,Ariana Amayo,0.0,0.0,,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-8110-94d2-c2f3a209ceb2,Validación del flujo AS-IS con usuarios clave,"Rioja, Enrique",0.0,0.0,,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Not started
+PM,3ff54bfd-8207-81bc-a0d6-f3711d4dfce4,Diagramación de flujo AS-IS,"Rioja, Enrique",4.0,20.0,14.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,In progress
+PM,3ff54bfd-8207-81bc-a0d6-f3711d4dfce4,Diagramación de flujo AS-IS,Ariana Amayo,4.0,20.0,14.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,In progress
+PM,3ff54bfd-8207-812c-b453-e90fa178bdac,Entrevistas de levantamiento,Ariana Amayo,0.0,10.0,8.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Done
+PM,3ff54bfd-8207-812c-b453-e90fa178bdac,Entrevistas de levantamiento,"Rioja, Enrique",0.0,10.0,8.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Done
+PM,3ff54bfd-8207-812b-bbb8-f922911b320d,Identificación de stakeholders y dueños del proceso,Marilyn Sáenz Segura,0.0,1.0,1.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Done
+PM,3ff54bfd-8207-81ba-8887-dc0353f39d7b,Kick Off y alineamiento de alcance,Marilyn Sáenz Segura,0.0,1.0,1.0,3fe54bfd-8207-8034-b545-ccf9997d97d8,Flujo de proyectos en área de movimiento,Modelo de PM,,False,Done

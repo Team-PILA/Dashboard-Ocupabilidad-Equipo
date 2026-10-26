@@ -43,6 +43,7 @@ def _falso_streamlit():
     st.columns.side_effect = lambda spec, **k: [_col() for _ in range(spec if isinstance(spec, int) else len(spec))]
     st.tabs.side_effect = lambda etiquetas: [MagicMock() for _ in etiquetas]
     st.button.return_value = False
+    st.radio.side_effect = lambda label, options, index=0, **k: "cierre" if "cierre" in options else options[index]
     st.stop.side_effect = RuntimeError("st.stop")
     return st
 
@@ -128,4 +129,73 @@ def test_una_seccion_rota_no_tumba_el_dashboard():
         app._seccion("Prueba", falla, 1)           # sin OCUPABILIDAD_DEBUG: se muestra el error
         assert st.error.called and "Prueba" in str(st.error.call_args)
     finally:
+        _restaurar(previos)
+
+
+def test_app_no_falla_con_los_filtros_vacios():
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        orig = st.columns.side_effect
+
+        def columnas_vacias(spec, **k):
+            cols = orig(spec, **k)
+            for c in cols:                      # multiselect sin nada elegido
+                c.multiselect.side_effect = lambda label, options, default=None, **kw: []
+            return cols
+        st.columns.side_effect = columnas_vacias
+        with tempfile.TemporaryDirectory() as t:
+            raiz = Path(t)
+            _escribir_csv(raiz)
+            app.main(raiz, _config())
+        assert not st.error.called
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+def test_app_con_rango_activado_y_sin_fotos_en_el_rango():
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        orig = st.columns.side_effect
+
+        def columnas_con_rango(spec, **k):
+            cols = orig(spec, **k)
+            for c in cols:
+                c.toggle.side_effect = lambda label, value=False, **kw: (
+                    True if "rango" in label.lower() else value)
+                from datetime import date
+                c.date_input.side_effect = lambda label, value=None, **kw: (
+                    (date(2026, 10, 5), date(2026, 10, 9)) if "Rango" in label else value)
+            return cols
+        st.columns.side_effect = columnas_con_rango
+        with tempfile.TemporaryDirectory() as t:
+            raiz = Path(t)
+            _escribir_csv(raiz)
+            app.main(raiz, _config())
+        avisos = " ".join(str(c.args[0]) for c in st.warning.call_args_list if c.args)
+        assert "No hay fotos en el rango" in avisos
+        assert not st.error.called
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+def test_app_en_early_morning_sin_foto_de_la_manana_avisa_sin_romperse():
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        st.radio.side_effect = lambda label, options, index=0, **k: "manana"
+        with tempfile.TemporaryDirectory() as t:
+            raiz = Path(t)
+            _escribir_csv(raiz)            # los datos de prueba solo tienen fotos de cierre
+            app.main(raiz, _config())
+        info = " ".join(str(c.args[0]) for c in st.info.call_args_list if c.args)
+        assert "No hay foto de Early Morning 8:30" in info
+        subtitulos = " ".join(str(c.args[0]) for c in st.subheader.call_args_list if c.args)
+        assert "Early Morning 8:30" in subtitulos
+        assert not st.error.called
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
         _restaurar(previos)

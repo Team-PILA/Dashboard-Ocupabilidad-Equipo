@@ -186,11 +186,17 @@ def _heatmap(largo: pd.DataFrame):
 
 def _diaria(r: dict) -> None:
     d = r["diaria"]
+    momento = d.get("momento", "cierre")
+    etiqueta = vista.ETIQUETA_MOMENTO.get(momento, momento)
     if d["dia"] is None:
         st.subheader("Ocupabilidad diaria")
         st.info("No hay fotos diarias para ese día.")
         return
-    st.subheader(f"Ocupabilidad diaria · {vista.fmt_fecha(d['dia'])}")
+    st.subheader(f"Ocupabilidad diaria · {vista.fmt_fecha(d['dia'])} · {etiqueta}")
+    if not d.get("foto_disponible", True):
+        st.info(f"No hay foto de {etiqueta} para el {vista.fmt_fecha(d['dia'])}. "
+                "Elige el otro momento u otro día.")
+        return
     st.caption(
         f"Equipo: {vista.fmt_horas(d['horas'])} asignadas de {vista.fmt_horas(d['capacidad'])} "
         f"de capacidad · {vista.fmt_pct(d['ocupabilidad'])} · {vista.etiqueta_estado(d['estado'])}")
@@ -201,8 +207,11 @@ def _diaria(r: dict) -> None:
         st.info("Sin integrantes para los filtros elegidos.")
         return
     _mostrar(_grafico_diaria(d["largo"], vista.df_diaria_totales(d["resumen"])))
+    alcance = (f"Solo se cuentan actividades en estado {', '.join(r['estados_validos'])}."
+               if r.get("estados_validos")
+               else "Se muestran todos los estados de las actividades: es la planificación del día.")
     st.caption("Horas «asignadas hoy» de cada integrante, apiladas según el estado de la actividad. "
-               "La marca gris es su capacidad del día; un 0 significa que no registró horas.")
+               "La marca gris es su capacidad del día; un 0 significa que no registró horas. " + alcance)
     with st.expander("Ver tabla"):
         _tabla(vista.tabla_diaria(d["resumen"]))
 
@@ -217,17 +226,19 @@ def _tarjetas(r: dict, equipo: Equipo) -> None:
         st.caption(f"{vista.fmt_horas(oc['horas'])} de {vista.fmt_horas(oc['disponibles'])} "
                    f"disponibles · {oc['dias']} día(s) laborable(s)")
     eg, ep = r["exactitud_global"], r["exactitud_proyectos"]
+    alcance = "con horas en el rango" if r.get("rango_activo") else "al día de hoy"
     with t2:
         st.metric("Exactitud de planificación global", vista.fmt_pct(eg["exactitud"]),
-                  help="Horas planificadas ÷ horas reales (acumulado a la última corrida, sin rango "
-                       "de fechas). Mayor a 100%: se planificó más de lo ejecutado.")
+                  help="Horas planificadas ÷ horas reales (acumulado de cada actividad a la última "
+                       "corrida). Con el rango activo, solo las actividades con horas en ese rango. "
+                       "Mayor a 100%: se planificó más de lo ejecutado.")
         st.caption(f"Plan {vista.fmt_horas(eg['horas_plan'])} · Real {vista.fmt_horas(eg['horas_reales'])} "
-                   f"· {eg['actividades']} actividades · al día de hoy")
+                   f"· {eg['actividades']} actividades · {alcance}")
     with t3:
         st.metric("Exactitud de planificación de proyectos", vista.fmt_pct(ep["exactitud"]),
                   help="Igual que la global, solo con Actividades & Entregables y Actividades PM.")
         st.caption(f"Plan {vista.fmt_horas(ep['horas_plan'])} · Real {vista.fmt_horas(ep['horas_reales'])} "
-                   f"· {ep['actividades']} actividades · al día de hoy")
+                   f"· {ep['actividades']} actividades · {alcance}")
     with t4:
         pm = r["programa_pm"]
         st.metric(f"Horas del programa {pm['programa']}", vista.fmt_horas(pm["horas"]),
@@ -304,8 +315,8 @@ def _exactitud_proyectos(r: dict) -> None:
         st.info("Sin actividades con horas planificadas.")
         return
     _tabla(vista.tabla_exactitud(detalle))
-    st.caption("«—» significa que el proyecto aún no tiene horas reales. Datos acumulados a la última "
-               "corrida, sin relación con el rango de fechas.")
+    st.caption("«—» significa que el proyecto aún no tiene horas reales. Plan y real son acumulados a la "
+               "última corrida; con el rango activo, solo cuentan las actividades con horas en ese rango.")
 
 
 def _alertas(r: dict, config: dict) -> None:
@@ -346,7 +357,10 @@ def _como_se_calcula(equipo: Equipo) -> None:
             "cuenta las horas completas.\n"
             "- Solo cuentan las personas del equipo. Quien no esté en la lista aparece en las alertas.\n"
             "- **Exactitud** = horas planificadas ÷ horas reales, acumulado a la última corrida. Se excluyen "
-            "las actividades sin plan; con el interruptor activo, también las que aún no tienen horas reales."
+            "las actividades sin plan; con el interruptor activo, también las que aún no tienen horas reales. "
+            "Con «Filtrar por rango de fechas» encendido, solo cuentan las actividades que tuvieron horas "
+            "del equipo dentro del rango.\n"
+            "- **Ocupabilidad diaria** no depende del rango: usa su propio calendario."
         )
 
 
@@ -374,9 +388,10 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
         st.info(vista.aviso_ultima_foto(None, equipo, hoy))
         st.stop()
     hora = f" (corrida {ultima['ejecutado_en'][11:16]})" if ultima["ejecutado_en"] else ""
-    st.caption(f"Última foto: {vista.fmt_fecha(ultima['fecha'])}{hora}. "
+    st.caption(f"Última foto: {vista.fmt_fecha(ultima['fecha'])} · "
+               f"{vista.ETIQUETA_MOMENTO.get(ultima['momento'], ultima['momento'])}{hora}. "
                "El equipo registra horas hasta las 17:30; la foto del día se reemplaza al volver a correr.")
-    aviso = vista.aviso_ultima_foto(ultima, equipo, hoy)
+    aviso = vista.aviso_ultima_foto(vista.ultima_corrida(datos["registro"], "cierre"), equipo, hoy)
     if aviso:
         st.warning(aviso)
 
@@ -385,9 +400,15 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
     ini_def, fin_def = vista.rango_por_defecto(datos["registro"], hoy)
     with st.container(border=True):
         f1, f1b, f2, f3, f4, f5 = st.columns([2.2, 1.5, 2, 1.8, 1.8, 1.5])
-        rango = f1.date_input("Rango de fechas", value=(ini_def, fin_def), format="DD/MM/YYYY")
-        # El detalle diario NO depende del rango: calendario propio, de la primera a la última foto.
-        fotos = vista.fechas_con_foto(datos["registro"])
+        filtrar_rango = f1.toggle(
+            "Filtrar por rango de fechas", value=False,
+            help="Apagado: se ve todo el histórico. Encendido: todos los indicadores (excepto el "
+                 "detalle diario) usan solo las fechas que elijas.")
+        rango = (f1.date_input("Rango de fechas", value=(ini_def, fin_def), format="DD/MM/YYYY")
+                 if filtrar_rango else (ini_def, fin_def))
+        # El detalle diario NO depende del rango: calendario propio, de la primera a la última foto
+        # (de cualquier momento) y, debajo, la elección entre las dos fotos del día.
+        fotos = vista.fechas_con_foto(datos["registro"], momento=None)
         dia = (f1b.date_input("Día del detalle diario", value=fotos[-1], min_value=fotos[0],
                               max_value=fotos[-1], format="DD/MM/YYYY") if fotos else None)
         personas = f2.multiselect("Persona", op["personas"], default=op["personas"])
@@ -396,9 +417,22 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
         solo_ini = f5.toggle("Exactitud: solo con horas reales", value=True,
                              help="Excluye de la exactitud las actividades planificadas que aún no "
                                   "tienen horas reales; si no, inflan el cociente.")
+        # Antes del mediodía abre en Early Morning; después, en Cierre de turno.
+        ahora_lima = datetime.now(ZoneInfo(config.get("zona_horaria", "America/Lima")))
+        momento = st.radio(
+            "Detalle diario", ["manana", "cierre"], index=0 if ahora_lima.hour < 12 else 1,
+            horizontal=True, format_func=lambda m: vista.ETIQUETA_MOMENTO[m],
+            help="Early Morning: planificación de las 8:30 con todos los estados. Cierre de turno: "
+                 "lo ejecutado a las 17:30, solo En curso y Done. Solo afecta al gráfico diario.")
     if not (isinstance(rango, (tuple, list)) and len(rango) == 2):
         st.info("Elige la fecha de inicio y la de fin del rango.")
         st.stop()
+
+    f1.caption(vista.texto_periodo(filtrar_rango, rango[0], rango[1]))
+    if filtrar_rango:
+        sin_fotos = vista.aviso_rango_sin_fotos(datos["registro"], rango[0], rango[1])
+        if sin_fotos:
+            st.warning(sin_fotos)
 
     try:
         r = kpis.calcular_todo(
@@ -406,7 +440,7 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
             personas=vista.valor_filtro(personas, op["personas"]),
             bases=vista.valor_filtro(bases, list(BASES)),
             tipos_proyecto=vista.valor_filtro(tipos, op["tipos"]),
-            solo_iniciadas=solo_ini, dia=dia,
+            solo_iniciadas=solo_ini, dia=dia, rango_activo=filtrar_rango, momento=momento,
         )
     except ValueError as e:
         st.error(f"Los CSV no tienen el formato esperado: {e}")

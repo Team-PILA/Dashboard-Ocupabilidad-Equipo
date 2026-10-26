@@ -161,3 +161,161 @@ def test_diaria_sin_datos_no_falla():
     }
     r = kpis.calcular_todo(vacio, EQ, tk.INI, tk.FIN)["diaria"]
     assert r["dia"] is None and r["resumen"].empty and r["estado"] == "Sin datos"
+
+
+# --------------------------------------------------- solo estados Done y En curso ---
+
+def test_filtrar_estados_validos_deja_done_y_en_curso():
+    h = _hist()
+    f = kpis.filtrar_estados_validos(h)
+    assert set(f["estado"]) == {"Done", "In progress", "En curso"}          # sin Not Started, Stuck ni raros
+    assert len(f) == 6                                                      # a1,a2,s2,u1,j1,m1
+    assert len(kpis.filtrar_estados_validos(h, [])) == len(h)               # lista vacía = sin filtro
+    solo_done = kpis.filtrar_estados_validos(h, ["Done"])
+    assert set(solo_done["estado"]) == {"Done"}
+    try:
+        kpis.filtrar_estados_validos(h, ["Inventado"])
+    except ValueError as e:
+        assert "Inventado" in str(e)
+    else:
+        raise AssertionError("Debió fallar")
+
+
+def test_calcular_todo_solo_cuenta_estados_validos_pero_avisa_los_raros():
+    from tests import test_kpis as k
+    datos = k._datos()
+    hist = pd.concat([datos["historico"], pd.DataFrame([
+        F(k.JUE, "Ariana Amayo", 2.0, "Not Started", "n1"),
+        F(k.JUE, "Ariana Amayo", 1.0, "Estado raro", "n2"),
+    ]).assign(fecha=k.JUE)], ignore_index=True)
+    datos = {**datos, "historico": hist}
+    con = kpis.calcular_todo(datos, EQ, k.INI, k.FIN, dia=k.JUE)
+    sin = kpis.calcular_todo(datos, EQ, k.INI, k.FIN, dia=k.JUE,
+                             config={"estados_validos": []})
+    ar = lambda r: r["diaria"]["resumen"].set_index("persona").loc["Ariana Amayo", "total"]  # noqa: E731
+    assert aprox(ar(sin) - ar(con), 3.0)                  # Not Started 2 + raro 1 quedan fuera
+    assert con["estados_validos"] == ["Done", "En curso"]
+    assert con["diaria"]["estados_sin_clasificar"] == ["Estado raro"]       # igual se avisa
+
+
+# ------------------------------------------- filtros vacíos o sin coincidencias ---
+
+def test_calcular_todo_no_falla_con_ningun_filtro_vacio():
+    import itertools
+    fallos = []
+    for p, b, t, s in itertools.product([None, [], ["Sofía Soto"]], [None, [], ["Tareas"], ["PM"]],
+                                        [None, [], ["Modelo PM"], ["Sin proyecto"]], [True, False]):
+        try:
+            kpis.calcular_todo(tk._datos(), EQ, tk.INI, tk.FIN, personas=p, bases=b,
+                               tipos_proyecto=t, solo_iniciadas=s)
+        except Exception as e:  # noqa: BLE001
+            fallos.append((p, b, t, s, repr(e)))
+    assert not fallos, fallos[:3]
+
+
+# ---------------------------------------------------- exactitud y rango de fechas ---
+
+def _exac(ini, fin, **kw):
+    r = kpis.calcular_todo(tk._datos(), EQ, ini, fin, **kw)
+    return r["exactitud_global"], r["exactitud_proyectos"], r
+
+
+def test_exactitud_sin_rango_activo_usa_todo_el_estado_actual():
+    g, p, r = _exac(tk.LUN, tk.LUN)               # rango de un día, pero el rango NO está activo
+    assert aprox(g["horas_plan"], 29) and aprox(g["horas_reales"], 13) and r["rango_activo"] is False
+
+
+def test_exactitud_con_rango_activo_solo_actividades_con_horas_en_el_rango():
+    # lunes: solo PM a1 (plan 5, real 2)
+    g, p, r = _exac(tk.LUN, tk.LUN, rango_activo=True)
+    assert aprox(g["horas_plan"], 5) and aprox(g["horas_reales"], 2) and g["actividades"] == 1
+    assert aprox(p["horas_plan"], 5) and r["rango_activo"] is True
+    # martes: Ruta b1 (10/4) + Tareas c1 (3/1); proyectos solo b1
+    g, p, _ = _exac(tk.MAR, tk.MAR, rango_activo=True)
+    assert aprox(g["horas_plan"], 13) and aprox(g["horas_reales"], 5)
+    assert aprox(p["horas_plan"], 10) and aprox(p["exactitud"], 2.5)
+    # toda la semana: a1, b1, b2, c1 (b3 solo tiene horas de "Sin asignar"; a2 y c2 no tienen horas/estado)
+    g, _, _ = _exac(tk.INI, tk.FIN, rango_activo=True)
+    assert aprox(g["horas_plan"], 23) and aprox(g["horas_reales"], 12) and aprox(g["exactitud"], 23 / 12)
+
+
+def test_exactitud_con_rango_activo_sin_fotos_es_sin_datos():
+    g, p, _ = _exac("2026-10-05", "2026-10-09", rango_activo=True)
+    assert g["exactitud"] is None and g["actividades"] == 0 and g["detalle"].empty
+    assert p["exactitud"] is None
+
+
+def test_texto_y_aviso_del_rango():
+    import vista
+    assert vista.texto_periodo(False, "2026-10-19", "2026-10-24") == "Todo el histórico: 19/10/2026 – 24/10/2026"
+    assert vista.texto_periodo(True, "2026-10-20", "2026-10-21") == "Rango elegido: 20/10/2026 – 21/10/2026"
+    reg = tk._registro()
+    assert vista.aviso_rango_sin_fotos(reg, "2026-10-19", "2026-10-20") is None
+    msg = vista.aviso_rango_sin_fotos(reg, "2026-10-05", "2026-10-09")
+    assert "05/10/2026" in msg and "19/10/2026" in msg and "24/10/2026" in msg
+
+
+# --------------------------------------------- Early Morning vs Cierre de turno ---
+
+def _datos_dos_fotos():
+    """Jueves 22: a las 8:30 planificó 6 h (Done 1, En curso 1, Sin empezar 3, Stuck 1);
+    al cierre quedó con 5 h (Done 3, En curso 2) y las filas de mañana NO deben contarse dos veces."""
+    base = tk._datos()
+    manana = pd.DataFrame([
+        F(tk.JUE, "Ariana Amayo", 1.0, "Done", "m1"), F(tk.JUE, "Ariana Amayo", 1.0, "In progress", "m2"),
+        F(tk.JUE, "Ariana Amayo", 3.0, "Not Started", "m3"), F(tk.JUE, "Ariana Amayo", 1.0, "Stuck", "m4"),
+    ]).assign(momento="manana")
+    cierre = pd.DataFrame([
+        F(tk.JUE, "Ariana Amayo", 3.0, "Done", "m1"), F(tk.JUE, "Ariana Amayo", 2.0, "In progress", "m2"),
+    ]).assign(momento="cierre")
+    hist = pd.concat([base["historico"], manana, cierre], ignore_index=True)
+    reg = pd.concat([base["registro"].assign(momento="cierre"),
+                     pd.DataFrame({"fecha": [tk.JUE], "ok": [True], "momento": ["manana"]})],
+                    ignore_index=True)
+    return {**base, "historico": hist, "registro": reg}
+
+
+def test_early_morning_muestra_todos_los_estados():
+    r = kpis.calcular_todo(_datos_dos_fotos(), EQ, tk.INI, tk.FIN, dia=tk.JUE, momento="manana")
+    d = r["diaria"]
+    a = d["resumen"].set_index("persona").loc["Ariana Amayo"]
+    assert (a["Done"], a["En curso"], a["Sin empezar"], a["Stuck"]) == (1.0, 1.0, 3.0, 1.0)
+    assert aprox(a["total"], 6.0) and d["momento"] == "manana" and d["foto_disponible"] is True
+    assert r["estados_validos"] == []                        # sin filtro de estados
+
+
+def test_cierre_de_turno_solo_done_y_en_curso_y_no_mezcla_la_manana():
+    r = kpis.calcular_todo(_datos_dos_fotos(), EQ, tk.INI, tk.FIN, dia=tk.JUE, momento="cierre")
+    a = r["diaria"]["resumen"].set_index("persona").loc["Ariana Amayo"]
+    assert (a["Done"], a["En curso"], a["Sin empezar"], a["Stuck"]) == (3.0, 2.0, 0.0, 0.0)
+    assert aprox(a["total"], 5.0) and r["estados_validos"] == ["Done", "En curso"]
+
+
+def test_los_indicadores_por_rango_ignoran_las_fotos_de_la_manana():
+    con = kpis.calcular_todo(_datos_dos_fotos(), EQ, tk.INI, tk.FIN)
+    # el histórico base más solo las filas de cierre del jueves (5 h de Ariana); las 6 h de la mañana no entran
+    base = kpis.calcular_todo(tk._datos(), EQ, tk.INI, tk.FIN)
+    ar = lambda r: r["ocupabilidad"]["detalle"].set_index("persona").loc["Ariana Amayo", "horas"]  # noqa: E731
+    assert aprox(ar(con) - ar(base), 5.0)
+    assert [str(d) for d in con["dias"]["con_foto"]] == [str(d) for d in base["dias"]["con_foto"]]
+
+
+def test_foto_disponible_por_momento():
+    datos = _datos_dos_fotos()
+    sin_manana = {**datos, "registro": datos["registro"][datos["registro"]["momento"] == "cierre"]}
+    d = kpis.calcular_todo(sin_manana, EQ, tk.INI, tk.FIN, dia=tk.JUE, momento="manana")["diaria"]
+    assert d["foto_disponible"] is False             # el aviso sale del registro de corridas
+    assert kpis.calcular_todo(sin_manana, EQ, tk.INI, tk.FIN, dia=tk.JUE)["diaria"]["foto_disponible"] is True
+    try:
+        kpis.calcular_todo(datos, EQ, tk.INI, tk.FIN, momento="tarde")
+    except ValueError as e:
+        assert "tarde" in str(e)
+    else:
+        raise AssertionError("Debió fallar")
+
+
+def test_estados_validos_de_la_manana_se_pueden_configurar():
+    r = kpis.calcular_todo(_datos_dos_fotos(), EQ, tk.INI, tk.FIN, dia=tk.JUE, momento="manana",
+                           config={"estados_validos_manana": ["Done", "En curso"]})
+    a = r["diaria"]["resumen"].set_index("persona").loc["Ariana Amayo"]
+    assert aprox(a["total"], 2.0) and r["estados_validos"] == ["Done", "En curso"]

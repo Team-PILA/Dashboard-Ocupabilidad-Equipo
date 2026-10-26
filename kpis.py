@@ -26,7 +26,7 @@ from typing import Iterable, Optional
 
 import pandas as pd
 
-from build_master import COLUMNAS_ESTADO, COLUMNAS_FOTO, COLUMNAS_REGISTRO
+from build_master import CIERRE, COLUMNAS_ESTADO, COLUMNAS_FOTO, COLUMNAS_REGISTRO, MANANA, MOMENTOS
 from capacidad import DESCONOCIDO, EN_EQUIPO, Equipo, a_fecha, dias_en_rango
 
 PROGRAMA_PM = "Modelo de PM"
@@ -63,9 +63,28 @@ def _exigir(df: pd.DataFrame, columnas: list[str], nombre: str) -> None:
         raise ValueError(f"{nombre}: faltan columnas {faltan}. Disponibles: {list(df.columns)}")
 
 
+def registro_ok(registro: Optional[pd.DataFrame], momento: Optional[str] = CIERRE) -> pd.DataFrame:
+    """Filas del registro de corridas exitosas de un momento (None = de cualquiera).
+
+    Un registro sin columna `momento` (anterior a las dos fotos diarias) se toma como de cierre.
+    """
+    if registro is None or registro.empty or not {"fecha", "ok"} <= set(registro.columns):
+        return pd.DataFrame(columns=COLUMNAS_REGISTRO)
+    r = registro[_bool(registro["ok"])]
+    if momento is not None:
+        m = (r["momento"].fillna(CIERRE) if "momento" in r.columns
+             else pd.Series(CIERRE, index=r.index))
+        r = r[m == momento]
+    return r
+
+
 def preparar_historico(hist: pd.DataFrame) -> pd.DataFrame:
-    _exigir(hist, COLUMNAS_FOTO, "historico")
-    h = hist[COLUMNAS_FOTO].copy()
+    _exigir(hist, [c for c in COLUMNAS_FOTO if c != "momento"], "historico")
+    h = hist.copy()
+    if "momento" not in h.columns:          # histórico anterior a las dos fotos diarias
+        h["momento"] = CIERRE
+    h["momento"] = h["momento"].fillna(CIERRE)
+    h = h[COLUMNAS_FOTO]
     h["fecha"] = h["fecha"].map(a_fecha)
     h["horas_hoy"] = pd.to_numeric(h["horas_hoy"], errors="coerce").fillna(0.0)
     h["tiene_entregable"] = _bool(h["tiene_entregable"])
@@ -130,17 +149,15 @@ def _solo_equipo(h: pd.DataFrame) -> pd.DataFrame:
 # --------------------------------------------------------------------- días ---
 
 def seleccionar_dias(registro: pd.DataFrame, equipo: Equipo, ini: object, fin: object) -> dict:
-    """Clasifica los días del rango según el registro de corridas.
+    """Clasifica los días del rango según el registro de corridas (solo fotos de CIERRE).
 
-    con_foto       días con corrida exitosa
+    con_foto       días con corrida de cierre exitosa
     laborables     con foto y capacidad > 0 -> los únicos que cuentan en los cálculos
     no_laborables  con foto pero sin capacidad (fin de semana o feriado): se ignoran
     sin_foto       días con capacidad > 0 en los que el script no corrió (alerta)
     """
     ini, fin = a_fecha(ini), a_fecha(fin)
-    fechas: set = set()
-    if registro is not None and not registro.empty and {"fecha", "ok"} <= set(registro.columns):
-        fechas = {a_fecha(f) for f in registro.loc[_bool(registro["ok"]), "fecha"]}
+    fechas = {a_fecha(f) for f in registro_ok(registro, CIERRE)["fecha"]}   # solo fotos de cierre
     con_foto = sorted(d for d in fechas if ini <= d <= fin)
     con_capacidad = lambda d: equipo.horas_disponibles_equipo([d]) > 0  # noqa: E731
     return {
@@ -304,14 +321,22 @@ def exactitud_planificacion(
     personas: Optional[list[str]] = None,
     dim: Optional[pd.DataFrame] = None,
     solo_iniciadas: bool = False,
+    actividades: Optional[set] = None,
 ) -> dict:
-    """SUM(horas_plan) / SUM(horas_reales) sobre el estado actual (acumulado, sin rango).
+    """SUM(horas_plan) / SUM(horas_reales) sobre el estado actual (acumulado por actividad).
+
+    `actividades`: si se entrega, un conjunto de (base_origen, actividad_id); solo cuentan esas
+    actividades (las que tuvieron horas en el rango elegido). None = todas, sin restricción.
 
     Se excluyen las actividades sin plan (vacío o 0). Con solo_iniciadas=True se excluyen además
     las que aún no tienen horas reales; si no, una actividad planificada pero no iniciada sube el
     cociente. None si no hay horas reales.
     """
     e = estado
+    if actividades is not None:
+        # .astype(bool): con 0 filas el map devuelve dtype object y pandas lo toma como columnas
+        e = e[pd.Series([(b, a) in actividades for b, a in zip(e["base_origen"], e["actividad_id"])],
+                        index=e.index, dtype=bool)]
     if bases is not None:
         e = e[e["base_origen"].isin(bases)]
     if tipos_proyecto is not None:
@@ -319,7 +344,8 @@ def exactitud_planificacion(
         e = e[e["tipo_proyecto"].isin(tipos_proyecto)]
     if personas is not None:
         sel = set(personas)
-        e = e[e["personas"].map(lambda s: bool(sel & set(_tokens(s, "; "))))]
+        # .astype(bool): con 0 filas el map devuelve dtype object y pandas lo toma como lista de columnas
+        e = e[e["personas"].map(lambda s: bool(sel & set(_tokens(s, "; ")))).astype(bool)]
 
     con_plan = e[e["horas_plan"] > 0]
     excluidas = len(e) - len(con_plan)
@@ -375,6 +401,26 @@ def normalizar_estado(valor: object, tabla: Optional[dict[str, str]] = None) -> 
         return ESTADO_OTRO
     clave = " ".join(str(valor).split()).casefold()
     return (tabla or construir_tabla_estados()).get(clave, ESTADO_OTRO)
+
+
+ESTADOS_VALIDOS_DEFECTO = ["Done", "En curso"]
+
+
+def filtrar_estados_validos(h: pd.DataFrame, validos: Optional[list[str]] = None,
+                            equivalencias: Optional[dict] = None) -> pd.DataFrame:
+    """Deja solo las filas cuyo estado (normalizado) está en `validos` (por defecto Done y En curso).
+
+    Aplica igual a las 3 bases: 'In progress' y 'En curso' son el mismo estado. Lo que no se
+    reconoce ('Otro') queda fuera. Con `validos` vacío o None-explícito no se filtra.
+    """
+    validos = ESTADOS_VALIDOS_DEFECTO if validos is None else list(validos)
+    if not validos:
+        return h
+    malos = [v for v in validos if v not in ESTADOS_ORDEN]
+    if malos:
+        raise ValueError(f"estados_validos: {malos} no son estados. Válidos: {ESTADOS_ORDEN}")
+    tabla = construir_tabla_estados(equivalencias)
+    return h[h["estado"].map(lambda e: normalizar_estado(e, tabla)).isin(validos)]
 
 
 def ocupabilidad_diaria(
@@ -490,32 +536,60 @@ def calcular_todo(
     tipos_proyecto: Optional[list[str]] = None,
     solo_iniciadas: bool = False,
     dia: Optional[object] = None,
+    rango_activo: bool = False,
+    momento: str = CIERRE,
 ) -> dict:
     """Todos los indicadores del dashboard para un rango y unos filtros. Lo usa Streamlit.
 
     `dia` es el día del detalle diario (por defecto, la última foto del rango).
+    `momento`: foto del detalle diario, "manana" (Early Morning: todos los estados, es la
+    planificación) o "cierre" (solo los estados de `estados_validos`). Los demás indicadores usan
+    siempre las fotos de cierre.
+    `rango_activo`: con False (vista por defecto, todo el histórico) la exactitud usa todas las
+    actividades; con True solo las que tuvieron horas del equipo dentro del rango.
 
     Nota sobre los filtros: `personas` también reduce el denominador de la ocupabilidad a esas
     personas; `bases` y `tipos_proyecto` solo restringen las horas (la capacidad se mantiene).
     """
     config = config or {}
-    hist = preparar_historico(datos["historico"])
+    if momento not in MOMENTOS:
+        raise ValueError(f"momento '{momento}' no válido. Válidos: {list(MOMENTOS)}")
+    hist_foto = preparar_historico(datos["historico"])      # las fotos de TODOS los momentos
+    hist_total = hist_foto[hist_foto["momento"] == CIERRE]  # sin filtrar estados: alertas y avisos
+    validos_cierre = config.get("estados_validos", ESTADOS_VALIDOS_DEFECTO)
+    hist = filtrar_estados_validos(hist_total, validos_cierre, config.get("estados"))
+    # Early Morning muestra todos los estados (lista vacía = sin filtro), salvo que se configure
+    validos = validos_cierre if momento == CIERRE else config.get("estados_validos_manana", [])
     estado = preparar_estado(datos["estado"])
     dim = datos.get("dim")
 
     dias = seleccionar_dias(datos["registro"], equipo, ini, fin)
     h = filtrar_historico(hist, dias["laborables"], dim, personas, bases, tipos_proyecto)
-    h_alertas = hist[hist["fecha"].isin(set(dias["con_foto"]))]
+    h_alertas = hist_total[hist_total["fecha"].isin(set(dias["con_foto"]))]
     filtros_estado = {"dim": dim, "tipos_proyecto": tipos_proyecto, "personas": personas,
                       "solo_iniciadas": solo_iniciadas}
+    if rango_activo:
+        he = _solo_equipo(h)
+        filtros_estado["actividades"] = set(zip(he["base_origen"], he["actividad_id"]))
     po = horas_por_po(h, dim)
     if dia is None and dias["con_foto"]:
         dia = dias["con_foto"][-1]
-    h_dia = (filtrar_historico(hist, [dia], dim, personas, bases, tipos_proyecto)
-             if dia is not None else hist.iloc[0:0])
+    h_momento = hist_foto[hist_foto["momento"] == momento]
+    h_dia_crudo = (filtrar_historico(h_momento, [dia], dim, personas, bases, tipos_proyecto)
+                   if dia is not None else hist_foto.iloc[0:0])
+    h_dia = filtrar_estados_validos(h_dia_crudo, validos, config.get("estados"))
+    diaria = ocupabilidad_diaria(h_dia, equipo, dia, personas, config.get("estados"))
+    if dia is not None:   # los estados raros se avisan aunque el filtro los deje fuera de las horas
+        crudo = ocupabilidad_diaria(h_dia_crudo, equipo, dia, personas, config.get("estados"))
+        diaria["estados_sin_clasificar"] = crudo["estados_sin_clasificar"]
+    fechas_momento = {a_fecha(f) for f in registro_ok(datos["registro"], momento)["fecha"]}
+    diaria["momento"] = momento
+    diaria["foto_disponible"] = dia is not None and a_fecha(dia) in fechas_momento
     return {
         "dias": dias,
-        "diaria": ocupabilidad_diaria(h_dia, equipo, dia, personas, config.get("estados")),
+        "estados_validos": validos or [],
+        "rango_activo": bool(rango_activo),
+        "diaria": diaria,
         "ocupabilidad": ocupabilidad(h, equipo, dias["laborables"], personas),
         "horas_por_proyecto": horas_por_proyecto(h),
         "programa_pm": horas_programa(h, config.get("programa_pm", PROGRAMA_PM)),
