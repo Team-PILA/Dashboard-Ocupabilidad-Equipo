@@ -1,45 +1,54 @@
 ﻿base_origen,actividad_id,actividad,persona,horas_hoy,horas_plan,horas_reales,proyecto_id,proyecto,programa,tipos_entregable,tiene_entregable,estado
-Tareas,40654bfd-8207-80f6-9256-e0a56db499f6,Revisar propuesta desarrollo OSITRAN,Anghelo Aguirre,0.25,0.25,0.25,,Inspecciones OSITRAN | Otros,Extracurricular,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Marilyn Sáenz Segura,2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Gianfranco Fernandez,2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,"Soto, Ana",2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,"Rioja, Enrique",2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Ariana Amayo,2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
-Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Anghelo Aguirre,2.5,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40754bfd-8207-8067-9c3a-e70f35a6f949,Atender Coaching de desarrollos PI con Andres,Anghelo Aguirre,1.0,1.0,,,Otros,Extracurricular,,False,Sin empezar
+Tareas,40754bfd-8207-80df-af0b-e38c3b32f250,Realizar analisis de encuesta visita ULima: PPT,"Rioja, Enrique",1.0,1.0,0.6,,,,,False,En validación
+Tareas,40654bfd-8207-805a-b5ca-caeec93d33cb,Planificar actividades de la Ruta EOO,Marilyn Sáenz Segura,1.0,0.5,,,Ruta EOO,Modelo de Gestión de Procesos,,False,En curso
+Tareas,40654bfd-8207-80fd-aa2a-efaf4c7c5925,Actualizar ppt de análisis del proceso,Marilyn Sáenz Segura,3.0,3.0,,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Sin empezar
+Tareas,40654bfd-8207-80c5-b4d5-ff347a022d6c,Sesión de alineación,Marilyn Sáenz Segura,1.0,1.0,,,Otros,Extracurricular,,False,Done
+Tareas,40654bfd-8207-80f8-8a9b-d9b8fb6c5f6b,Presentación a estudiantes ULima,Marilyn Sáenz Segura,0.5,0.5,,,Aprendizaje social,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-80dd-99d2-ef4cf3f96542,Validar Análisis VSM,Marilyn Sáenz Segura,1.25,1.0,,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
+Tareas,40654bfd-8207-8023-88aa-ca548c7633d0,Reunión de seguimiento: Excel,Marilyn Sáenz Segura,1.5,1.5,,,Ruta EOO,Modelo de PM,,False,Done
+Tareas,40654bfd-8207-8023-88aa-ca548c7633d0,Reunión de seguimiento: Excel,Ariana Amayo,1.5,1.5,,,Ruta EOO,Modelo de PM,,False,Done
+Tareas,40654bfd-8207-80f6-9256-e0a56db499f6,Revisar propuesta desarrollo OSITRAN,Anghelo Aguirre,0.0,0.25,0.25,,Inspecciones OSITRAN | Otros,Extracurricular,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Marilyn Sáenz Segura,0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Gianfranco Fernandez,0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,"Soto, Ana",0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,"Rioja, Enrique",0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Ariana Amayo,0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
+Tareas,40654bfd-8207-806d-80eb-c02eeca7447f,Mesa de trabajo InnovaLA,Anghelo Aguirre,0.0,1.5,2.5,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
 Tareas,40654bfd-8207-8044-b5ec-dc703507e43a,Generar dashboard Value Generation (RE): MVP Web App,Anghelo Aguirre,0.0,2.0,,,Estandarización | Otros,Extracurricular,,True,Sin empezar
-Tareas,40654bfd-8207-809d-aa93-fe3ab94258a4,Settear espacio para compatir formatos de sol. digitales Angel HR,Anghelo Aguirre,0.5,0.5,0.5,,Otros,Extracurricular,,False,Done
-Tareas,40654bfd-8207-809d-aa93-fe3ab94258a4,Settear espacio para compatir formatos de sol. digitales Angel HR,Marilyn Sáenz Segura,0.5,0.5,0.5,,Otros,Extracurricular,,False,Done
+Tareas,40654bfd-8207-809d-aa93-fe3ab94258a4,Settear espacio para compatir formatos de sol. digitales Angel HR,Anghelo Aguirre,0.0,0.5,0.5,,Otros,Extracurricular,,False,Done
+Tareas,40654bfd-8207-809d-aa93-fe3ab94258a4,Settear espacio para compatir formatos de sol. digitales Angel HR,Marilyn Sáenz Segura,0.0,0.5,0.5,,Otros,Extracurricular,,False,Done
 Tareas,40654bfd-8207-8069-8a7e-c3cd3a3991fe,Generar guardas oficiales de histórico de ocupabilidad PI: BDD,Anghelo Aguirre,1.5,1.5,,,Otros,Extracurricular,,True,Sin empezar
-Tareas,40654bfd-8207-8025-bcc3-c8d76014ec42,Corregir conexiones en Notion de BDDs,Anghelo Aguirre,0.5,0.5,0.5,,Otros,Extracurricular,,False,Done
+Tareas,40654bfd-8207-8025-bcc3-c8d76014ec42,Corregir conexiones en Notion de BDDs,Anghelo Aguirre,0.0,0.5,0.5,,Otros,Extracurricular,,False,Done
 Tareas,40654bfd-8207-8094-9d46-da7122c898ef,Coordinación EOO,Ariana Amayo,1.5,1.5,,,Ruta EOO,Modelo de Gestión de Procesos | Modelo de PM,,False,Sin empezar
-Tareas,40654bfd-8207-801b-a268-f003f770e728,Corregir documentos para Soluciones Digitales HR,Anghelo Aguirre,0.5,0.5,0.5,,Otros,Extracurricular,,True,Done
-Tareas,40654bfd-8207-8048-85a5-ed56d526975d,Crear inventario de soluciones digitales PI bajo formato que se comparte a TI: Sharepoint List,Anghelo Aguirre,0.5,0.5,,,Otros,Extracurricular,,False,En curso
-Tareas,40554bfd-8207-8094-9f3f-e4f5842d05dc,Armar relación de proyectos y actividades de dupla,Marilyn Sáenz Segura,0.5,0.5,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,40554bfd-8207-80e4-ad87-fdc95c3a4037,Generar acta de reunión,Marilyn Sáenz Segura,0.5,0.5,,,Comité PI-TI,Extracurricular,,False,Done
+Tareas,40654bfd-8207-801b-a268-f003f770e728,Corregir documentos para Soluciones Digitales HR,Anghelo Aguirre,0.0,0.5,0.5,,Otros,Extracurricular,,True,Done
+Tareas,40654bfd-8207-8048-85a5-ed56d526975d,Crear inventario de soluciones digitales PI bajo formato que se comparte a TI: Sharepoint List,Anghelo Aguirre,1.0,0.5,0.5,,Otros,Extracurricular,,False,En curso
+Tareas,40554bfd-8207-8094-9f3f-e4f5842d05dc,Armar relación de proyectos y actividades de dupla,Marilyn Sáenz Segura,0.0,0.5,0.5,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
+Tareas,40554bfd-8207-80e4-ad87-fdc95c3a4037,Generar acta de reunión,Marilyn Sáenz Segura,0.0,0.5,0.5,,Comité PI-TI,Extracurricular,,False,Done
 Tareas,40554bfd-8207-809c-a0d5-ec51e6dc2ba5,Validar presentación para visita ULima,Marilyn Sáenz Segura,0.0,0.5,0.5,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,40554bfd-8207-809c-a0d5-ec51e6dc2ba5,Validar presentación para visita ULima,"Soto, Ana",0.0,0.5,0.5,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,40554bfd-8207-809c-a0d5-ec51e6dc2ba5,Validar presentación para visita ULima,"Rioja, Enrique",0.0,0.5,0.5,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,40554bfd-8207-80bd-b4d3-d8f16dcfc0f3,Alistar bolsas de merch para visita ULima: Merch,Anghelo Aguirre,0.0,0.5,0.5,,Otros,Extracurricular,,True,Done
-Tareas,40554bfd-8207-80c2-b113-d71521913422,Revisar guiones - Contenido Efiencia en Lima Airport,Gianfranco Fernandez,0.75,0.75,0.75,,Otros,Extracurricular,,False,Done
+Tareas,40554bfd-8207-80c2-b113-d71521913422,Revisar guiones - Contenido Efiencia en Lima Airport,Gianfranco Fernandez,0.0,0.75,0.75,,Otros,Extracurricular,,False,Done
 Tareas,40554bfd-8207-80d6-9c3d-d470763b6ddf,Establecer prompt para foco semanal,"Soto, Ana",0.0,1.0,1.5,,Otros,Extracurricular,,False,Done
 Tareas,40554bfd-8207-80d6-9c3d-d470763b6ddf,Establecer prompt para foco semanal,Anghelo Aguirre,0.0,1.0,1.5,,Otros,Extracurricular,,False,Done
-Tareas,40554bfd-8207-80fd-8cf0-faaac242d5e5,Revisar actividades de Dupla EOO: Excel,Marilyn Sáenz Segura,1.0,1.0,1.0,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,40554bfd-8207-80fd-8cf0-faaac242d5e5,Revisar actividades de Dupla EOO: Excel,Ariana Amayo,1.0,1.0,1.0,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,40554bfd-8207-803f-b0e4-ccab7d116ae4,Sesión de seguimiento de proyectos y prioridades,Marilyn Sáenz Segura,0.7,0.7,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,40554bfd-8207-803f-b0e4-ccab7d116ae4,Sesión de seguimiento de proyectos y prioridades,Ariana Amayo,0.7,0.7,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,40554bfd-8207-803e-9548-ec434068be0b,Analizar fichas de proceso de Logística,"Rioja, Enrique",2.0,5.0,,,Ruta EOO,Modelo de Gestión de Procesos,,False,En curso
+Tareas,40554bfd-8207-80fd-8cf0-faaac242d5e5,Revisar actividades de Dupla EOO: Excel,Marilyn Sáenz Segura,0.0,1.0,2.0,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
+Tareas,40554bfd-8207-80fd-8cf0-faaac242d5e5,Revisar actividades de Dupla EOO: Excel,Ariana Amayo,0.0,1.0,2.0,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
+Tareas,40554bfd-8207-803f-b0e4-ccab7d116ae4,Sesión de seguimiento de proyectos y prioridades,Marilyn Sáenz Segura,0.0,0.7,0.7,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
+Tareas,40554bfd-8207-803f-b0e4-ccab7d116ae4,Sesión de seguimiento de proyectos y prioridades,Ariana Amayo,0.0,0.7,0.7,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
+Tareas,40554bfd-8207-803e-9548-ec434068be0b,Analizar fichas de proceso de Logística,"Rioja, Enrique",4.0,5.0,2.5,,Ruta EOO,Modelo de Gestión de Procesos,,False,En curso
 Tareas,40554bfd-8207-80b8-b402-e8a662cc3e12,Sesión de entendimiento  de Fichas de procesos de TI,Marilyn Sáenz Segura,0.0,0.75,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Sin empezar
 Tareas,40554bfd-8207-80b8-b402-e8a662cc3e12,Sesión de entendimiento  de Fichas de procesos de TI,Ariana Amayo,0.0,0.75,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Sin empezar
 Tareas,40554bfd-8207-8076-b930-dd06cc0e83f0,Revisar y enviar Cronogramas propuestos - GCC,Gianfranco Fernandez,0.0,1.0,,,Eficiencia GCC,Ruta de eficiencia,,True,Sin empezar
-Tareas,40554bfd-8207-80f6-97ba-c422ede3f7da,Presentación de propuesta de Comunicaciones,"Soto, Ana",0.0,0.5,,,Plan de comunicación,Extracurricular,,False,Sin empezar
-Tareas,40554bfd-8207-80f6-97ba-c422ede3f7da,Presentación de propuesta de Comunicaciones,Marilyn Sáenz Segura,0.0,0.5,,,Plan de comunicación,Extracurricular,,False,Sin empezar
-Tareas,40554bfd-8207-80c4-9349-dd1331d374f6,Generar dashboard MVP de Ocupabilidad del Equipo (WORKLOAD): Web App,Anghelo Aguirre,3.0,3.0,3.0,,Otros | Estandarización,Extracurricular,,True,En curso
-Tareas,40554bfd-8207-8043-9066-c1f19d0148e8,Generar infografía de pipeline de proyectos para MP: Infografía (1),Anghelo Aguirre,0.0,1.0,,,Otros,Extracurricular,,True,Sin empezar
+Tareas,40554bfd-8207-80f6-97ba-c422ede3f7da,Presentación de Estrategia de Comunicaciones,"Soto, Ana",0.5,0.5,,,Plan de comunicación,Extracurricular,,False,En curso
+Tareas,40554bfd-8207-80f6-97ba-c422ede3f7da,Presentación de Estrategia de Comunicaciones,Marilyn Sáenz Segura,0.5,0.5,,,Plan de comunicación,Extracurricular,,False,En curso
+Tareas,40554bfd-8207-80c4-9349-dd1331d374f6,Generar dashboard MVP de Ocupabilidad del Equipo (WORKLOAD): Web App,Anghelo Aguirre,3.0,3.0,4.5,,Otros | Estandarización,Extracurricular,,True,En curso
+Tareas,40554bfd-8207-8043-9066-c1f19d0148e8,Generar infografía de pipeline de proyectos para MP: Infografía,Anghelo Aguirre,1.0,1.0,,,Otros,Extracurricular,,True,Sin empezar
 Tareas,40554bfd-8207-8038-8ef5-fb60f460fe4c,Realizar cursos de Aprendizaje Regulatorio,"Soto, Ana",0.5,4.0,0.25,,Otros,Extracurricular,,False,En curso
-Tareas,40554bfd-8207-80f5-833f-c579a8f16600,Compartir formatos oficiales de Soluciones Digitales a Angel HR: PDF,Anghelo Aguirre,0.0,1.0,,,Estandarización,Programa de Mejora Continua,,False,Sin empezar
-Tareas,40554bfd-8207-8075-920a-e2ec67a547b2,Apoyar en visita UL,"Soto, Ana",3.0,3.0,,,Aprendizaje social,Programa de Mejora Continua,,False,En curso
-Tareas,40554bfd-8207-80ac-b3ff-c8cfc138df40,Mejorar propuesta innova LA lite,"Rioja, Enrique",2.53,2.0,,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Sin empezar
-Tareas,40554bfd-8207-801e-96ca-eb64986469da,Generar repositorio de almacenamiento de archivos para Dashboards Proy y Ocupabilidad,Anghelo Aguirre,0.0,1.0,,,Otros,Extracurricular,,False,Sin empezar
+Tareas,40554bfd-8207-80f5-833f-c579a8f16600,Compartir formatos oficiales de Soluciones Digitales a Angel HR: PDF,Anghelo Aguirre,0.75,0.75,,,Estandarización,Programa de Mejora Continua,,False,Sin empezar
+Tareas,40554bfd-8207-8075-920a-e2ec67a547b2,Apoyar en visita UL,"Soto, Ana",0.0,3.0,3.0,,Aprendizaje social,Programa de Mejora Continua,,False,Done
+Tareas,40554bfd-8207-80ac-b3ff-c8cfc138df40,Mejorar propuesta innova LA lite,"Rioja, Enrique",4.0,6.0,,,Aprendizaje experiencial,Programa de Mejora Continua,,False,En curso
+Tareas,40554bfd-8207-801e-96ca-eb64986469da,Generar repositorio de almacenamiento de archivos para Dashboards Proy y Ocupabilidad,Anghelo Aguirre,2.0,2.0,,,Otros,Extracurricular,,False,Sin empezar
 Tareas,40254bfd-8207-806b-a710-f75ac6f3671a,Validar formatos finales Comité PI-TI,Marilyn Sáenz Segura,0.0,0.5,,,Gestión del equipo,Modelo de PM,,False,Done
 Tareas,40254bfd-8207-806b-a710-f75ac6f3671a,Validar formatos finales Comité PI-TI,Anghelo Aguirre,0.0,0.5,,,Gestión del equipo,Modelo de PM,,False,Done
 Tareas,40254bfd-8207-80ae-bbc4-f9fe643d032f,Sesión de seguimiento de Visita alumnos ULima,Marilyn Sáenz Segura,0.0,0.5,,,Aprendizaje social,Programa de Mejora Continua,,False,Done
@@ -48,7 +57,7 @@ Tareas,40254bfd-8207-8035-9632-f681fc8e689f,Revisar propuesta de InnovaLA: PPT,M
 Tareas,40254bfd-8207-8035-9632-f681fc8e689f,Revisar propuesta de InnovaLA: PPT,"Rioja, Enrique",0.0,0.5,,,Aprendizaje experiencial,Programa de Mejora Continua,,False,Done
 Tareas,40254bfd-8207-80c5-b094-f2759de69ffe,Realizar PPT para visita UL,"Soto, Ana",0.0,1.0,1.0,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,40254bfd-8207-80cf-ba22-cd84651b0796,Pasar formato de excel a HTML - Taller de desperdicios,"Soto, Ana",0.0,0.5,0.5,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
-Tareas,40254bfd-8207-8069-9671-cfffa5dde33b,Depurar ficha de Logística,"Soto, Ana",2.0,3.0,1.5,,Ruta EOO,Modelo de Gestión de Procesos,,True,En curso
+Tareas,40254bfd-8207-8069-9671-cfffa5dde33b,Depurar ficha de Logística,"Soto, Ana",2.0,3.0,2.0,,Ruta EOO,Modelo de Gestión de Procesos,,True,En curso
 Tareas,40154bfd-8207-8008-bc20-c594f686ea0f,Sesión 2 de Embajadores de R&C,Ariana Amayo,1.0,1.0,1.0,,Otros,Extracurricular,,False,Done
 Tareas,40154bfd-8207-805c-86ab-c24281dc28c1,Validar y enviar resultados de la encuesta de satisfacción Taller Trainess,Marilyn Sáenz Segura,0.0,0.3,0.3,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
 Tareas,40154bfd-8207-803c-b32e-e6ec834ecfe0,Generar material para Radar Tech: PPT,Anghelo Aguirre,0.0,2.0,3.0,,Aprendizaje formal,Extracurricular,,True,Done
@@ -84,8 +93,8 @@ Tareas,3ff54bfd-8207-80f1-9743-c5032ad57de4,Validar Flujo de atención de soluci
 Tareas,3ff54bfd-8207-8084-b8e9-db4827800d6c,Revisar Estrategia de contenido PI: PPT,Marilyn Sáenz Segura,0.0,0.5,0.85,,Plan de comunicación,Extracurricular,,False,Done
 Tareas,3ff54bfd-8207-806e-bc5e-fee846bdcb28,Transpasar dashboard a despliegue en web (online),Anghelo Aguirre,0.0,3.0,1.0,,Otros,Extracurricular,,False,Done
 Tareas,3ff54bfd-8207-8094-8445-ee56d7653b03,Generar plantilla para Gestión de Proyectos vinculada a base de datos de proyectos PM,Anghelo Aguirre,0.0,1.5,1.5,,Otros,Extracurricular,,True,Done
-Tareas,3ff54bfd-8207-80b8-84e9-cac3160fd4cc,Realizar análisis VSM,Marilyn Sáenz Segura,2.0,2.0,17.5,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
-Tareas,3ff54bfd-8207-80b8-84e9-cac3160fd4cc,Realizar análisis VSM,Gianfranco Fernandez,2.0,2.0,17.5,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
+Tareas,3ff54bfd-8207-80b8-84e9-cac3160fd4cc,Realizar análisis VSM,Marilyn Sáenz Segura,0.0,2.0,19.5,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
+Tareas,3ff54bfd-8207-80b8-84e9-cac3160fd4cc,Realizar análisis VSM,Gianfranco Fernandez,0.0,2.0,19.5,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
 Tareas,3ff54bfd-8207-8092-892d-f797f9e59067,Revisión de PPT: Estrategia de contenido,"Soto, Ana",0.0,0.5,0.5,,Plan de comunicación,Extracurricular,,False,Done
 Tareas,3ff54bfd-8207-80f6-b8d0-e83940377e91,Revisión de categorización por tipo de actividades logísticas,Ariana Amayo,0.0,2.0,2.0,,Actualización de Macroprocesos,Modelo de Gestión de Procesos,,False,Done
 Tareas,3ff54bfd-8207-80f6-b8d0-e83940377e91,Revisión de categorización por tipo de actividades logísticas,"Soto, Ana",0.0,2.0,2.0,,Actualización de Macroprocesos,Modelo de Gestión de Procesos,,False,Done
@@ -99,7 +108,7 @@ Tareas,3fe54bfd-8207-8064-aff7-c09f4a0c1534,Confirmar correcto flujo de datos en
 Tareas,3fe54bfd-8207-801d-8646-c76b78a694b0,Generar plantilla borrador para organización de proyectos Modelo de PM y Ruta de Eficiencias: Notion BDD,Anghelo Aguirre,0.0,1.0,3.0,,Otros,Extracurricular,,True,Done
 Tareas,3fe54bfd-8207-8082-a4c9-c71d73d335de,Actualizar información de proy en Notion,Ariana Amayo,1.0,1.0,,,Otros,Modelo de PM,,False,Done
 Tareas,3fe54bfd-8207-80b4-9f59-ef8c1176ef81,Planificar estructura de proyectos para relacionamiento como BDD,Anghelo Aguirre,0.0,1.0,1.0,,Otros,Extracurricular,,False,Done
-Tareas,3fe54bfd-8207-8075-b40f-e9060d92006b,Completar módulo estándar de Notion,Gianfranco Fernandez,0.0,4.0,2.0,,Otros,Extracurricular,,False,En curso
+Tareas,3fe54bfd-8207-8075-b40f-e9060d92006b,Completar módulo estándar de Notion,Gianfranco Fernandez,1.0,4.0,2.0,,Otros,Extracurricular,,False,En curso
 Tareas,3fe54bfd-8207-8053-a113-dea4c7a25444,Avanzar cursos - ruta Trainee,"Soto, Ana",0.0,15.0,1.5,,Otros,Extracurricular,,False,En curso
 Tareas,3fe54bfd-8207-80d0-b825-f1585f1b1e40,Definir métricas para comunicaciones - Humand,"Soto, Ana",0.0,0.5,0.5,,Plan de comunicación,Extracurricular,,False,Done
 Tareas,3fe54bfd-8207-80d0-b825-f1585f1b1e40,Definir métricas para comunicaciones - Humand,Gianfranco Fernandez,0.0,0.5,0.5,,Plan de comunicación,Extracurricular,,False,Done
@@ -130,7 +139,6 @@ Tareas,3f954bfd-8207-8030-8cb9-d046b78f50db,Revisión de Flujos - Kale,Ariana Am
 Tareas,3f954bfd-8207-80ab-a3c2-f3d58eb98e9f,Presentación de resultados FM,Ariana Amayo,0.0,1.0,1.0,,Workload FM,Modelo de PM,,False,Done
 Tareas,3f954bfd-8207-8008-890e-cc4153fb8b79,Revisión de ppt de resultados procura,Marilyn Sáenz Segura,0.0,4.0,4.0,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
 Tareas,3f954bfd-8207-80ee-8e21-d318f6d296b2,Hacer cartillas - 7 desperdicios,"Soto, Ana",0.0,1.5,1.5,,Aprendizaje formal,Programa de Mejora Continua,,True,Done
-Tareas,3f954bfd-8207-804c-b5e9-e5d661699354,Elaborar informe de eficiencias - Logística,Gianfranco Fernandez,2.0,3.0,2.0,,Eficiencia Logística,Ruta de eficiencia,,True,En curso
 Tareas,3f954bfd-8207-80b1-a663-cad091c1b926,Generar plantilla oficial de blueprint service lite para Angel HR: HTML,Anghelo Aguirre,0.0,2.0,3.0,,Estandarización,Programa de Mejora Continua,,True,Done
 Tareas,3f954bfd-8207-8052-84a5-eac9fff427c1,Generar formato de decisión de tipo de solución Digital: HTML,Anghelo Aguirre,0.0,1.0,1.0,,Otros,Programa de Mejora Continua,,True,Done
 Tareas,3f854bfd-8207-80d7-8f42-e28c3890a84e,Reunión de objetivo de comunicación,"Rioja, Enrique",0.0,1.0,1.0,,Plan de comunicación,Extracurricular,,False,Done
@@ -186,7 +194,7 @@ Tareas,3f054bfd-8207-8072-90a2-fe5eb0534962,Programar cronograma en ruta de efic
 Tareas,3f054bfd-8207-8067-9390-ffabc360df22,Sesión de revisión de flujos,"Soto, Ana",0.0,0.5,0.5,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
 Tareas,3f054bfd-8207-80a3-88b3-cfe44b86eddb,Generar reunión de correcto entendimiento y feedback post-presentacion Angel HR,Anghelo Aguirre,0.0,1.0,1.0,,Otros,Extracurricular,,False,Done
 Tareas,3f054bfd-8207-8055-a3d4-d361f58f85db,Capacitación De la oportunidad de mejora a la solución adecuada en procesos,"Rioja, Enrique",0.0,1.0,2.0,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
-Tareas,3f054bfd-8207-8010-b24a-da0ac6689b7c,Realizar la planificación de intervención en GCI,Gianfranco Fernandez,0.0,6.0,3.0,,Eficiencia GCAF,Ruta de eficiencia,,True,En curso
+Tareas,3f054bfd-8207-8010-b24a-da0ac6689b7c,Realizar la planificación de intervención en GCI,Gianfranco Fernandez,0.0,6.0,3.0,,Eficiencia GCAF,Ruta de eficiencia,,True,Done
 Tareas,3f054bfd-8207-80df-9410-f47e4042157c,Capacitación mejora de procesos,"Soto, Ana",0.0,1.0,1.0,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
 Tareas,3f054bfd-8207-8079-b10c-f0736fcdc347,Presentar propuesta de Arquitectura Low-Code a PM PI,Anghelo Aguirre,0.0,1.0,1.0,,F2: Procura para Proyectos de Inversión,Modelo de PM,,True,Done
 Tareas,3f054bfd-8207-80ec-949e-f8ddb8f437a6,Presentar propuesta de Stack Tecnológico para herramientas internas PI,Anghelo Aguirre,0.0,0.5,0.75,,Otros,Extracurricular,,False,Done
@@ -215,7 +223,6 @@ Tareas,3eb54bfd-8207-8044-8c04-d3e29d502129,Definir flujo de atención de PI,"Ri
 Tareas,3eb54bfd-8207-80d3-b948-f00de10f5eb7,Evaluar propuestas para proyecto trainee,"Soto, Ana",0.0,0.5,0.5,,Otros,Extracurricular,,False,Done
 Tareas,3eb54bfd-8207-8003-9a3e-ff51d1d695e3,Entregar prioridades de Fichas de procesos,Marilyn Sáenz Segura,0.0,1.5,0.75,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
 Tareas,3eb54bfd-8207-8019-8be6-f60dabe1f70b,Generar informe de mudas/desperdicios BDD Infra y lista de oportunidades,Anghelo Aguirre,0.0,3.0,6.0,,,Modelo de PM,,True,Done
-Tareas,3eb54bfd-8207-8032-9b32-fe66b6946f74,Soporte en la Transferencia de responsabilidades RE - Mantto,Gianfranco Fernandez,3.5,10.0,9.5,,Eficiencia GCC,Ruta de eficiencia,,False,En curso
 Tareas,3eb54bfd-8207-80c7-9342-ef3294f93fc2,Revisar y diagramar AS - IS,"Soto, Ana",0.0,6.0,7.5,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
 Tareas,3eb54bfd-8207-8024-968b-d991dff91e62,Buscar y laborar material para Radar tech,"Rioja, Enrique",0.0,2.0,2.5,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
 Tareas,3ea54bfd-8207-8005-a849-d39f1a153835,Sesión de validación: Excel,Marilyn Sáenz Segura,0.0,0.5,0.25,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
@@ -254,8 +261,8 @@ Tareas,3e954bfd-8207-8075-b369-d80d71786266,Recolectar información colaboració
 Tareas,3e954bfd-8207-8045-9bcd-cce6e69fe176,Embellecer dashboards de PI,Anghelo Aguirre,0.0,4.0,,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Sin empezar
 Tareas,3e954bfd-8207-80d6-8e0f-d38d4613a647,"Crear widgets según planteamiento en archivo de indicaciones (sin diseño visual bonito, solo maqueta)",Anghelo Aguirre,0.0,2.0,2.0,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
 Tareas,3e954bfd-8207-80c9-a90d-e36d69b007fd,Llenar con fake datos (provisionalmente) para testearse,Anghelo Aguirre,0.0,0.5,0.5,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
-Tareas,3e954bfd-8207-8069-8c82-d5974535c889,"Armar, crear plantilla(s) para el llenado de las variables necesarias para los indicadores",Anghelo Aguirre,0.0,2.0,,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Sin empezar
-Tareas,3e954bfd-8207-80e0-a0bb-fc1885fe7ab7,"Definir nuevos lugares, ubicaciones, tipos de archivos y/o formatos en donde se registrarán los datos involucrados en los indicadores",Anghelo Aguirre,0.0,1.0,,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Sin empezar
+Tareas,3e954bfd-8207-8069-8c82-d5974535c889,"Armar, crear plantilla(s) para el llenado de las variables necesarias para los indicadores",Anghelo Aguirre,0.0,2.0,2.0,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
+Tareas,3e954bfd-8207-80e0-a0bb-fc1885fe7ab7,"Definir nuevos lugares, ubicaciones, tipos de archivos y/o formatos en donde se registrarán los datos involucrados en los indicadores",Anghelo Aguirre,0.0,1.0,1.0,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
 Tareas,3e954bfd-8207-801b-8b28-ed60b946a94f,Crear matriz checklist de qué indicadores sí podemos ir obteniendo porque tenemos de dónde sacar info,Anghelo Aguirre,0.0,1.5,1.5,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
 Tareas,3e954bfd-8207-8011-9584-fd95cb4b298f,Confirmar con owner estructura del dashboard ocupabilidad (maqueta),Anghelo Aguirre,0.0,0.25,0.25,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
 Tareas,3e954bfd-8207-80c1-8ec7-d10be70f3e8e,Definir indicadores/métricas que irán por dashboard según cliente,Anghelo Aguirre,0.0,2.0,4.5,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
@@ -264,7 +271,7 @@ Tareas,3e954bfd-8207-80ae-afaa-dcf010e482f1,Explicar follow Up Kpis,Anghelo Agui
 Tareas,3e954bfd-8207-80ae-afaa-dcf010e482f1,Explicar follow Up Kpis,Gianfranco Fernandez,0.0,0.5,0.5,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Done
 Tareas,3e954bfd-8207-8019-a050-cbfd851ac1b4,Buscar propuestas de dinámicas - ULima,"Soto, Ana",0.0,4.0,4.0,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,3e954bfd-8207-80e1-bc62-ce84f3b46b3a,Realizar Taller de Metodología de Proyectos,Gianfranco Fernandez,0.0,11.0,11.0,,Aprendizaje formal,Programa de Mejora Continua,,False,Done
-Tareas,3e954bfd-8207-8044-abd8-cd20413be551,Realizar y completar Módulo - Gestión Aeroportuaria,Gianfranco Fernandez,0.0,50.0,16.0,,Aprendizaje formal,Extracurricular,,False,En curso
+Tareas,3e954bfd-8207-8044-abd8-cd20413be551,Realizar y completar Módulo - Gestión Aeroportuaria,Gianfranco Fernandez,0.0,50.0,20.0,,Aprendizaje formal,Extracurricular,,False,En curso
 Tareas,3e954bfd-8207-804d-ac10-e3d442ec6e76,Realizar curso regulatorio,Gianfranco Fernandez,0.0,1.0,1.0,,Aprendizaje formal,Extracurricular,,False,Done
 Tareas,3e654bfd-8207-802d-b3ff-d3c3a0f3a6ab,Validar y definir alcance: Excel,Marilyn Sáenz Segura,0.0,0.5,1.0,,Ruta de eficiencia,Ruta de eficiencia,,True,Done
 Tareas,3e654bfd-8207-80b4-8b98-c7f880ddda8e,Sesión de alineamiento Visita ULima,Marilyn Sáenz Segura,0.0,0.3,0.6,,Aprendizaje social,Programa de Mejora Continua,,False,Done
@@ -273,7 +280,7 @@ Tareas,3e654bfd-8207-8021-8710-d1bfa3a2f222,Explorar fichas de procesos en busqu
 Tareas,3e554bfd-8207-8029-89b7-c2edb3c2831e,Sesión de entendimiento y validación Capacitación Procesos: PPT,Marilyn Sáenz Segura,0.0,1.2,1.1,,Aprendizaje formal,Programa de Mejora Continua,,True,Done
 Tareas,3e554bfd-8207-808a-9fc9-d5b0766873d7,Sesión de alineamiento Visita ULima,Marilyn Sáenz Segura,0.0,0.3,,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,3e554bfd-8207-80be-a609-f0be9e2f261e,Buscar e identificar formatos del proceso: Word,"Rioja, Enrique",0.0,1.0,1.0,,F2: Procura para Proyectos de Inversión,Modelo de PM,,False,Done
-Tareas,3e554bfd-8207-8002-b939-e8a5c0d0fabf,Gestionar visita alumnos ULima,"Rioja, Enrique",4.0,5.0,13.2,,Aprendizaje social,Programa de Mejora Continua,,False,En curso
+Tareas,3e554bfd-8207-8002-b939-e8a5c0d0fabf,Gestionar visita alumnos ULima: Informe,"Rioja, Enrique",0.0,5.0,16.7,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,3e554bfd-8207-80e0-a4da-d877e44044cc,Reunión apoyo facilidades visita ULima,"Rioja, Enrique",0.0,1.0,1.0,,Aprendizaje social,Programa de Mejora Continua,,False,Done
 Tareas,3e554bfd-8207-800f-83fc-c61cf84f2a0f,Generar material para Radar Tech: PPT,Anghelo Aguirre,0.0,2.0,7.5,,Aprendizaje formal,Extracurricular,,True,Done
 Tareas,3e554bfd-8207-80ea-b2d5-db9fbd02a683,Enseñar a brindar acceso a nuevos usuarios SolApp (AA): Guía con checklist,Anghelo Aguirre,0.0,2.0,2.5,,Otros,Extracurricular,,True,Done
@@ -309,7 +316,7 @@ Tareas,3e354bfd-8207-80b0-9c56-ef0c19dc60d0,Presentación de análisis FM,Ariana
 Tareas,3e354bfd-8207-80a1-a31d-c293174da15c,Diagramación de Flujos,Ariana Amayo,0.0,2.0,4.0,,,Modelo de PM,,False,Done
 Tareas,3e354bfd-8207-8036-b1e5-c6bd89dc7f0f,Levantar observaciones de fichas,Ariana Amayo,0.0,2.0,3.0,,Ruta EOO,Modelo de PM,,False,Done
 Tareas,3e354bfd-8207-8021-bb42-e821645e6b2a,Weekly,Ariana Amayo,0.0,1.0,1.0,,Otros,Extracurricular,,False,Done
-Tareas,3e254bfd-8207-80a5-8c22-eba453e31653,Diseñar y realizar Capacitación Desperdicios: PPT,Marilyn Sáenz Segura,0.5,2.5,1.9,,Aprendizaje formal,Programa de Mejora Continua,,True,En curso
+Tareas,3e254bfd-8207-80a5-8c22-eba453e31653,Diseñar y realizar Capacitación Desperdicios: PPT,Marilyn Sáenz Segura,0.0,2.5,2.4,,Aprendizaje formal,Programa de Mejora Continua,,True,En curso
 Tareas,3e254bfd-8207-8078-9242-ca883ae678b5,Generar infografía de pipeline de proyectos para MP: Infografía,Anghelo Aguirre,0.0,0.5,0.75,,Otros,Extracurricular,,True,Done
 Tareas,3e254bfd-8207-8011-aff0-f40fe60290e4,Definir requerimientos Dashboard Ocupabilidad y Proyectos (Notion): Plantilla Vista de Proyectos,Anghelo Aguirre,0.0,0.5,1.0,,Estandarización,Extracurricular,,True,Done
 Tareas,3e254bfd-8207-8011-aff0-f40fe60290e4,Definir requerimientos Dashboard Ocupabilidad y Proyectos (Notion): Plantilla Vista de Proyectos,Marilyn Sáenz Segura,0.0,0.5,1.0,,Estandarización,Extracurricular,,True,Done
@@ -326,7 +333,7 @@ Tareas,3de54bfd-8207-806f-af57-efcb33ab7e5e,Revisar y validar la propuesta de so
 Tareas,3de54bfd-8207-80a1-bd3c-f31c37a132a4,Agregar hallazgos Inv. Soluciones Tec LAP,Anghelo Aguirre,0.0,0.5,0.25,,Prefactibilidad PI - TI,Extracurricular,,True,Done
 Tareas,3de54bfd-8207-80b8-9ad2-deb86971ec9d,Sesión de alineación: PPT y Word,Marilyn Sáenz Segura,0.0,2.0,3.5,,Estandarización,Modelo de PM,,True,En curso
 Tareas,3de54bfd-8207-8053-a6f9-f35ada5b536a,"Modificar list/automate, asignando fechas a las fichas de proceso","Rioja, Enrique",0.0,4.0,5.5,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,3de54bfd-8207-80c7-a236-d17fa7b5721a,Elaborar planificación de Planes de Acción: PPT,Gianfranco Fernandez,0.0,3.0,2.0,,Eficiencia GCC,Ruta de eficiencia,,True,En curso
+Tareas,3de54bfd-8207-80c7-a236-d17fa7b5721a,Elaborar planificación de Planes de Acción: PPT,Gianfranco Fernandez,0.0,3.0,2.0,,Eficiencia GCC,Ruta de eficiencia,,True,Done
 Tareas,3de54bfd-8207-80a4-96a7-f74677abd4f9,Revisar pendientes-avance de Reglas de Decisión para Proyectos PI,Anghelo Aguirre,0.0,0.5,0.5,,Gestión del equipo,Modelo de PM,,False,Done
 Tareas,3de54bfd-8207-80a4-96a7-f74677abd4f9,Revisar pendientes-avance de Reglas de Decisión para Proyectos PI,"Rioja, Enrique",0.0,0.5,0.5,,Gestión del equipo,Modelo de PM,,False,Done
 Tareas,3de54bfd-8207-8029-80b1-c43b1bc87a49,Revisar flujo As-Is Exp. Etapa 6 para Entendimiento,Anghelo Aguirre,0.0,0.25,0.25,,Modelo PMO - PI,Extracurricular,,False,Done
@@ -483,11 +490,11 @@ Tareas,66354bfd-8207-8395-a4a9-812659ae9cb6,Comunidad de Conocimientos e Investi
 Tareas,1ce54bfd-8207-83c5-a8fb-8151327139f0,Migrar actividades de procesos e innovación - LA hacia Pi’s espacio de trabajo: Anghelo - Tabla migrada y actualizada en notion,"Rioja, Enrique",0.0,1.0,1.0,,Gestión del equipo,Modelo de PM,,False,Done
 Tareas,8f954bfd-8207-8251-b333-814b90523d07,Reunion con Data analyctis para establecer participacion PI: Correo o Acta de Reunion,Gianfranco Fernandez,0.0,1.0,,,Data Analytics,Programa Acelerador de Data Anlytics,,False,Sin empezar
 Tareas,3a154bfd-8207-82a6-8032-8193c1f28686,Explorar alternativas de formato de diccionario: Gian - WORD,"Rioja, Enrique",0.0,1.0,1.0,,Data Analytics,Programa Acelerador de Data Anlytics,,True,Done
-Tareas,89c54bfd-8207-8386-a285-813a6e02c48e,Definir las variables de analisis de los servicios: Matriz x Servicio,Gianfranco Fernandez,0.0,4.0,2.0,,Estandarización,Ruta de eficiencia,,False,En curso
+Tareas,89c54bfd-8207-8386-a285-813a6e02c48e,Definir las variables de analisis de los servicios: Matriz x Servicio,Gianfranco Fernandez,0.0,4.0,2.0,,Estandarización,Ruta de eficiencia,,False,Stuck
 Tareas,56c54bfd-8207-835e-b829-81db2072fa10,Realizar seguimiento de Acuerdos Comerciales: Correo,Gianfranco Fernandez,0.0,4.0,4.0,,Eficiencia GCC,Ruta de eficiencia,,False,Done
 Tareas,eb854bfd-8207-83a5-a51b-814537ebf776,Definir la Matriz de Criticidad de Procesos: Ranking Socializado,Gianfranco Fernandez,0.0,3.0,,,Estandarización,Ruta de eficiencia,,False,Sin empezar
 Tareas,8d354bfd-8207-828e-b2ab-01e7a5d2a5e7,Asegurar instalación de notion app de todo el equipo en sus ordenadores,Anghelo Aguirre,0.0,0.5,0.5,,Gestión del equipo,Modelo de PM,,False,Done
-Tareas,3dc54bfd-8207-826e-889a-81dcd2bb0ef9,Definir KPIs de PI y estructura para GCDSO: Matriz  Draft 1,Gianfranco Fernandez,0.0,5.0,4.0,,Estandarización,Ruta de eficiencia,,True,En curso
+Tareas,3dc54bfd-8207-826e-889a-81dcd2bb0ef9,Definir KPIs de PI y estructura para GCDSO: Matriz  Draft 1,Gianfranco Fernandez,0.0,5.0,4.0,,Estandarización,Ruta de eficiencia,,True,Stuck
 Tareas,f4754bfd-8207-8356-8e1d-01b8d7d515ed,Seguimiento de Proy CLM,Ariana Amayo,0.0,1.0,,,CLM,Modelo de PM,,False,Done
 Tareas,b5a54bfd-8207-83fa-8851-810ba62481ad,Elaborar Ficha Tecnica de KPIs para Procesos: Ficha,Gianfranco Fernandez,0.0,,,,Estandarización,Ruta de eficiencia,,False,Sin empezar
 Tareas,ac354bfd-8207-8243-b726-81bafb2c513c,Realizar cambios para presentación a HR,Ariana Amayo,0.0,1.0,,,Reputación,Modelo de PM,,False,Done
@@ -522,7 +529,6 @@ Tareas,af254bfd-8207-83cf-8045-0195ddc1f2dd,Matriz de Kpis modelo de impacto PI:
 Tareas,28a54bfd-8207-821b-8b72-0135b7e925b5,Ficha de procesos: Validación de campos Ficha de procesos evolutiva,Gianfranco Fernandez,0.0,2.0,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
 Tareas,28a54bfd-8207-821b-8b72-0135b7e925b5,Ficha de procesos: Validación de campos Ficha de procesos evolutiva,Marilyn Sáenz Segura,0.0,2.0,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
 Tareas,28a54bfd-8207-821b-8b72-0135b7e925b5,Ficha de procesos: Validación de campos Ficha de procesos evolutiva,Ariana Amayo,0.0,2.0,,,Ruta EOO,Modelo de Gestión de Procesos,,False,Done
-Tareas,cb754bfd-8207-83d3-b722-81d62a9f41ec,Diagnóstico Data&Reportería GCC: PPT,Gianfranco Fernandez,0.0,10.0,4.0,,Eficiencia GCC,Ruta de eficiencia,,False,En curso
 Tareas,20c54bfd-8207-8204-ae73-01f0066dd9e7,Ficha de procesos: Revisión de ficha de procesos evolutiva,Marilyn Sáenz Segura,0.0,1.0,,,Estandarización,Modelo de Gestión de Procesos,,False,Done
 Tareas,e8154bfd-8207-8253-b70b-81986b9af1ca,Matriz de Indicadores PI,Gianfranco Fernandez,0.0,5.0,5.0,,Modelo de Impacto PI,Ruta de eficiencia,,False,Done
 Tareas,c6854bfd-8207-83b9-b3fc-01deb40fe891,Proceso To Be Propuesto: Ficha,Gianfranco Fernandez,0.0,4.0,4.0,,Modelo PMO - PI,Ruta de eficiencia,,False,Done
@@ -532,4 +538,4 @@ Tareas,46b54bfd-8207-83a6-907a-81454bc23bdf,Flujograma To Be Propuesto,Marilyn S
 Tareas,14454bfd-8207-83d7-980a-8113041a3031,Variables de evaluación de Solicitud Tecnológica: HTML,Anghelo Aguirre,0.0,2.5,5.5,,Prefactibilidad PI - TI,Ruta de eficiencia,,True,Done
 Tareas,e1654bfd-8207-828c-8818-81d45302ee1d,Flujograma de Atencion,Gianfranco Fernandez,0.0,9.0,9.0,,Prefactibilidad PI - TI,Ruta de eficiencia,,False,Done
 Tareas,dc654bfd-8207-8381-93f8-01c025e2b4d1,Alcance del proceso: PPT,Gianfranco Fernandez,0.0,1.0,1.5,,Prefactibilidad PI - TI,Ruta de eficiencia,,False,Done
-Tareas,db454bfd-8207-8311-8262-81db374e523e,Estructura y Definicion: PPT,Gianfranco Fernandez,0.0,8.0,,,Modelo PMO - PI,Ruta de eficiencia,,False,En curso
+Tareas,db454bfd-8207-8311-8262-81db374e523e,Estructura y Definicion: PPT,Gianfranco Fernandez,0.0,8.0,,,Modelo PMO - PI,Ruta de eficiencia,,False,Done
