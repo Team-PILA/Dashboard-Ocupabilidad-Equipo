@@ -50,6 +50,23 @@ python -m pytest -q                # pruebas
 | `app.py` | Dashboard Streamlit |
 | `config.yaml` | Bases de Notion y parámetros |
 
+## Despliegue automático
+`.github/workflows/foto.yml` corre de lunes a viernes a las 8:30 y 17:30 (Lima): extrae de Notion y
+sube la foto a Supabase (`--extraer --subir --solo-db`, sin escribir CSV). **El repositorio debe ser privado.**
+
+- **Secrets de GitHub** (Settings > Secrets and variables > Actions): `NOTION_TOKEN` y
+  `SUPABASE_DB_URL` (conexión del rol `cron_rw`, escritura). No se necesita ningún otro.
+- **Secret de Streamlit** (app > Settings > Secrets): `SUPABASE_DB_URL_RO` (rol `dashboard_ro`, solo lectura).
+  Sin él, o si la conexión falla, la app lee los CSV locales.
+- **Lanzar a mano:** Actions > "Foto diaria de ocupabilidad" > Run workflow. `momento`: `auto` decide por
+  la hora de Lima (antes de las 12 = mañana). `fecha` es opcional; las horas de Notion son las de hoy,
+  así que una fecha pasada abortará por la validación de frescura.
+- **Si falla:** la corrida queda en rojo y no se guarda nada (la escritura es todo o nada; la foto
+  anterior sigue intacta). Abre el log: un error de Notion (token vencido, base sin compartir o columna
+  renombrada) ocurre antes de tocar la base; un `Error de base de datos` o `Verificación fallida` indica
+  un problema de conexión o de datos. Repetir la corrida es seguro: reemplaza la foto de ese día y momento.
+  GitHub puede demorar unos minutos los horarios programados.
+
 ## Seguridad
 `.env` y `data/` no se suben al repo (están en `.gitignore`).
 

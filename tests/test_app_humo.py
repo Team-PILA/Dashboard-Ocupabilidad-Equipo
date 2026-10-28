@@ -55,6 +55,7 @@ def _importar_app():
     sys.modules["streamlit"], sys.modules["altair"] = st, alt
     sys.modules.pop("app", None)
     app = importlib.import_module("app")
+    app._hay_db_ro = lambda: False      # por defecto, sin base (que .env no haga conectar a las pruebas)
     return app, st, previos
 
 
@@ -198,4 +199,115 @@ def test_app_en_early_morning_sin_foto_de_la_manana_avisa_sin_romperse():
         assert not st.error.called
     finally:
         os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+# ------------------------------------------------------ origen: base o CSV ---
+
+URL_SECRETA = "postgresql://dashboard_ro:clave-secreta@db.ejemplo.supabase.co:5432/postgres"
+
+
+class _ConexionFalsa:
+    def __init__(self):
+        self.cerrada = False
+
+    def close(self):
+        self.cerrada = True
+
+
+def _simular_db(monkeypatch, app, raiz_csv, falla=False):
+    """db simulado: lee los datos de un directorio con CSV; o falla con un mensaje que trae secretos."""
+    import db
+    import kpis
+
+    conn = _ConexionFalsa()
+    app._hay_db_ro = lambda: True
+
+    def conectar(solo_lectura=False):
+        assert solo_lectura is True
+        if falla:
+            raise RuntimeError(f"no se pudo conectar a {URL_SECRETA}")
+        return conn
+
+    monkeypatch.setattr(db, "conectar", conectar)
+    monkeypatch.setattr(db, "cargar_datos_db", lambda c: kpis.cargar_datos(raiz_csv, _config()))
+    monkeypatch.setattr(db, "config_desde_db", lambda c, base: {**base, "desde_db": True})
+    return conn
+
+
+def _textos(st) -> str:
+    return " ".join(str(c) for m in (st.caption, st.warning, st.error, st.info, st.subheader)
+                    for c in m.call_args_list)
+
+
+def test_app_arranca_con_la_base(monkeypatch):
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        with tempfile.TemporaryDirectory() as t, tempfile.TemporaryDirectory() as vacio:
+            _escribir_csv(Path(t))
+            conn = _simular_db(monkeypatch, app, Path(t))
+            app.main(Path(vacio), _config())          # sin CSV en la raíz de la app: solo la base
+        assert conn.cerrada
+        assert "Fuente: Supabase" in _textos(st)
+        assert "No se pudo leer Supabase" not in str(st.warning.call_args_list)
+        assert not st.error.called and not st.stop.called
+        assert st.altair_chart.call_count >= 5
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+def test_equipo_se_construye_con_el_config_de_la_base(monkeypatch):
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        vistos = []
+        orig = app.Equipo
+        app.Equipo = lambda cfg: vistos.append(cfg) or orig(cfg)
+        with tempfile.TemporaryDirectory() as t:
+            _escribir_csv(Path(t))
+            _simular_db(monkeypatch, app, Path(t))
+            app.main(Path(t), _config())
+        assert vistos and vistos[0].get("desde_db") is True
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+def test_si_la_base_falla_cae_al_csv_con_aviso_generico(monkeypatch):
+    app, st, previos = _importar_app()
+    os.environ["OCUPABILIDAD_DEBUG"] = "1"
+    try:
+        with tempfile.TemporaryDirectory() as t:
+            raiz = Path(t)
+            _escribir_csv(raiz)
+            _simular_db(monkeypatch, app, raiz, falla=True)
+            app.main(raiz, _config())
+        assert "No se pudo leer Supabase; se muestran datos locales" in _textos(st)
+        assert "Fuente: CSV local" in _textos(st)
+        todo = _textos(st) + str(st.markdown.call_args_list)
+        assert "clave-secreta" not in todo and "postgresql://" not in todo
+        assert not st.error.called and st.altair_chart.call_count >= 5
+    finally:
+        os.environ.pop("OCUPABILIDAD_DEBUG", None)
+        _restaurar(previos)
+
+
+def test_sin_base_ni_csv_error_amable_y_se_detiene(monkeypatch):
+    app, st, previos = _importar_app()
+    try:
+        with tempfile.TemporaryDirectory() as t:
+            _simular_db(monkeypatch, app, Path(t), falla=True)
+            try:
+                app.main(Path(t), _config())
+            except RuntimeError as e:
+                assert "st.stop" in str(e)
+            else:
+                raise AssertionError("Debió detenerse")
+        assert st.error.called
+        todo = _textos(st)
+        assert "clave-secreta" not in todo and "postgresql://" not in todo
+        assert "Traceback" not in todo and st.altair_chart.call_count == 0
+    finally:
         _restaurar(previos)

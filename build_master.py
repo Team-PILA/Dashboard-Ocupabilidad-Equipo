@@ -27,11 +27,24 @@ Uso:
     python build_master.py --momento cierre # cierre de turno (17:30)
     python build_master.py --extraer        # corre antes los 4 extractores contra Notion
     python build_master.py --fecha 2026-10-22 --permitir-antiguos
+
+Base de datos (Supabase; requiere SUPABASE_DB_URL en .env, ver db.py):
+    python build_master.py --subir          # escribe los CSV y además sube la foto a la base
+    python build_master.py --solo-db        # implica --subir y NO escribe CSV (GitHub Actions)
+    python build_master.py --sembrar        # carga config.yaml en las tablas de configuración y termina
+    python build_master.py --migrar-csv     # carga a la base los CSV ya generados y termina
+    python build_master.py --verificar      # compara filas y horas de cada snapshot contra la base;
+                                            # sale con código distinto de 0 si algo no coincide
+Con --subir la base se escribe ANTES que los CSV: si falla, no se escribe ningún CSV. En la
+base se guardan todos los estados (el filtro de estados se aplica al leer, no al guardar).
+Cualquier error de base termina con código distinto de 0; nunca se imprime la cadena de conexión.
 """
 from __future__ import annotations
 
 import argparse
 import os
+import re
+import sys
 import tempfile
 from datetime import date, datetime
 from pathlib import Path
@@ -275,11 +288,18 @@ def generar_foto_del_dia(
     raiz: Path = RAIZ,
     permitir_antiguos: bool = False,
     momento: str | None = None,
+    subir: bool = False,
+    solo_db: bool = False,
+    conn=None,
 ) -> dict:
     """Valida, calcula en memoria y recién entonces escribe. Devuelve un resumen.
 
     `momento`: "manana" (Early Morning) o "cierre". Si no se indica, se decide por la hora.
+    `subir`: sube la foto a la base (db.guardar_foto) ANTES de escribir los CSV; si falla, aborta
+    sin escribir ningún CSV. `solo_db` implica `subir` y no escribe CSV. `conn` es inyectable
+    para pruebas; si no se pasa, se abre con db.conectar() y se cierra siempre.
     """
+    subir = subir or solo_db
     zona = ZoneInfo(config.get("zona_horaria", "America/Lima"))
     ahora = (ahora or datetime.now(zona)).astimezone(zona)
     momento = momento or momento_por_hora(ahora)
@@ -315,20 +335,105 @@ def generar_foto_del_dia(
         "horas_desconocidas": round(float(desconocidas["horas_hoy"].sum()), 2),
     }
 
-    # 2) Escritura (cada archivo es idempotente; el histórico se deriva al final)
-    escribir_atomico(foto, snapshots / nombre_snapshot(dia, momento))
-    escribir_atomico(estado, processed / "estado_actual.csv")
-    registrar_corrida(processed / "registro_corridas.csv", registro)
-    historico = reconstruir_historico(snapshots, processed / "historico_horas_diarias.csv")
+    # 2) Base de datos (una transacción; si falla, no se escribe ningún CSV)
+    if subir:
+        import db
+
+        ruta_dim = processed / "dim_intervenciones.csv"
+        dim = pd.read_csv(ruta_dim, dtype=str, encoding="utf-8-sig") if ruta_dim.exists() else None
+        propia = conn is None
+        conn = db.conectar() if propia else conn
+        try:
+            db.guardar_foto(conn, foto, registro, estado, dim)
+        finally:
+            if propia:
+                conn.close()
+
+    # 3) Escritura de CSV (cada archivo es idempotente; el histórico se deriva al final)
+    dias_en_historico = None
+    if not solo_db:
+        escribir_atomico(foto, snapshots / nombre_snapshot(dia, momento))
+        escribir_atomico(estado, processed / "estado_actual.csv")
+        registrar_corrida(processed / "registro_corridas.csv", registro)
+        historico = reconstruir_historico(snapshots, processed / "historico_horas_diarias.csv")
+        dias_en_historico = historico["fecha"].nunique()
 
     return {
         "fecha": dia,
         "momento": momento,
         "registro": registro,
         "advertencias": advertencias,
-        "dias_en_historico": historico["fecha"].nunique(),
+        "dias_en_historico": dias_en_historico,
+        "subido_a_db": subir,
+        "csv_escritos": not solo_db,
         "personas_desconocidas": sorted(desconocidas["persona"].unique()),
     }
+
+
+_SNAPSHOT = re.compile(r"^snapshot_(\d{4}-\d{2}-\d{2})(_manana)?\.csv$")
+
+
+def verificar_contra_db(conn, dir_snapshots: Path) -> tuple[list[dict], bool]:
+    """Compara filas y suma de horas_hoy de cada snapshot CSV con la base (por fecha y momento)."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "select fecha, momento, count(*), coalesce(sum(horas_hoy), 0) "
+            "from ocupabilidad.foto_carga group by fecha, momento")
+        en_db = {(f.isoformat(), m): (int(n), float(h)) for f, m, n, h in cur.fetchall()}
+    filas, ok = [], True
+    for ruta in sorted(dir_snapshots.glob("snapshot_*.csv")) if dir_snapshots.exists() else []:
+        m = _SNAPSHOT.match(ruta.name)
+        if not m:
+            continue
+        fecha, momento = m.group(1), (MANANA if m.group(2) else CIERRE)
+        df = pd.read_csv(ruta, dtype=str, encoding="utf-8-sig")
+        n_csv = len(df)
+        h_csv = round(float(pd.to_numeric(df["horas_hoy"], errors="coerce").fillna(0).sum()), 2)
+        n_db, h_db = en_db.get((fecha, momento), (0, 0.0))
+        coincide = n_csv == n_db and abs(h_csv - h_db) <= 0.01
+        ok = ok and coincide
+        filas.append({"fecha": fecha, "momento": momento, "filas_csv": n_csv, "filas_db": n_db,
+                      "horas_csv": h_csv, "horas_db": round(h_db, 2),
+                      "resultado": "OK" if coincide else "DIFERENTE"})
+    return filas, ok
+
+
+def _sin_secretos(texto: str) -> str:
+    for var in ("SUPABASE_DB_URL", "SUPABASE_DB_URL_RO"):
+        valor = os.environ.get(var)
+        if valor:
+            texto = texto.replace(valor, "***")
+    return texto
+
+
+def _comando_db(config: dict, args) -> int:
+    """--sembrar / --migrar-csv / --verificar. Devuelve el código de salida."""
+    import json
+
+    import db
+
+    conn = None
+    try:
+        conn = db.conectar()
+        if args.sembrar:
+            resumen = db.sembrar_config(conn, config)
+            print(json.dumps(resumen, indent=2, ensure_ascii=False, default=str))
+        elif args.migrar_csv:
+            resumen = db.migrar_csv(conn, RAIZ, config)
+            print(json.dumps(resumen, indent=2, ensure_ascii=False, default=str))
+        else:
+            filas, ok = verificar_contra_db(conn, RAIZ / config["rutas"]["snapshots"])
+            print(pd.DataFrame(filas).to_string(index=False) if filas else "No hay snapshots en CSV.")
+            if not ok:
+                print("Hay diferencias entre los CSV y la base.")
+                return 1
+        return 0
+    except Exception as e:  # noqa: BLE001 - cualquier error de base -> código != 0, sin secretos
+        print(f"Error de base de datos ({type(e).__name__}): {_sin_secretos(str(e))}", file=sys.stderr)
+        return 1
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 def ejecutar_extractores() -> None:
@@ -350,9 +455,18 @@ def main() -> None:
     ap.add_argument("--extraer", action="store_true", help="correr antes los extractores")
     ap.add_argument("--permitir-antiguos", action="store_true",
                     help="aceptar CSV de entrada de otro día")
+    ap.add_argument("--subir", action="store_true", help="subir la foto a la base además de los CSV")
+    ap.add_argument("--solo-db", action="store_true",
+                    help="implica --subir y no escribe CSV (GitHub Actions)")
+    ap.add_argument("--sembrar", action="store_true", help="cargar config.yaml en la base y terminar")
+    ap.add_argument("--migrar-csv", action="store_true",
+                    help="cargar a la base los CSV existentes y terminar")
+    ap.add_argument("--verificar", action="store_true", help="comparar los snapshots CSV con la base")
     args = ap.parse_args()
 
     config = cargar_config()
+    if args.sembrar or args.migrar_csv or args.verificar:
+        sys.exit(_comando_db(config, args))
     zona = ZoneInfo(config.get("zona_horaria", "America/Lima"))
     ahora = datetime.now(zona)
     momento = args.momento or momento_por_hora(ahora)
@@ -363,13 +477,24 @@ def main() -> None:
     if args.extraer:
         ejecutar_extractores()
 
-    r = generar_foto_del_dia(
-        config, fecha=args.fecha, ahora=ahora, permitir_antiguos=args.permitir_antiguos,
-        momento=momento,
-    )
+    subir = args.subir or args.solo_db
+    try:
+        r = generar_foto_del_dia(
+            config, fecha=args.fecha, ahora=ahora, permitir_antiguos=args.permitir_antiguos,
+            momento=momento, subir=subir, solo_db=args.solo_db,
+        )
+    except Exception as e:  # noqa: BLE001
+        if not subir:
+            raise
+        print(f"Error ({type(e).__name__}): {_sin_secretos(str(e))}. No se escribió ningún CSV.",
+              file=sys.stderr)
+        sys.exit(1)
     reg = r["registro"]
-    print(f"Foto {r['fecha']} ({r['momento']}): {reg['filas_foto']} filas, {reg['horas_foto']} h "
-          f"({r['dias_en_historico']} día(s) en el histórico).")
+    destino = "base" if args.solo_db else ("CSV y base" if subir else "CSV")
+    historico = (f" ({r['dias_en_historico']} día(s) en el histórico)"
+                 if r["dias_en_historico"] is not None else "")
+    print(f"Foto {r['fecha']} ({r['momento']}): {reg['filas_foto']} filas, {reg['horas_foto']} h"
+          f"{historico}. Guardada en: {destino}.")
     if r["personas_desconocidas"]:
         print(f"Aviso: personas no reconocidas ({reg['horas_desconocidas']} h): "
               f"{r['personas_desconocidas']}")

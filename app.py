@@ -2,12 +2,14 @@
 
     streamlit run app.py
 
-Lee los CSV de data/processed/ (los genera build_master.py) y calcula todo con kpis.py.
-No consulta Notion: la app solo muestra lo último que guardó la foto diaria.
+Lee de Supabase (rol de solo lectura) si hay SUPABASE_DB_URL_RO en st.secrets o en el entorno;
+si no hay o la conexión falla, lee los CSV de data/processed/ (los genera build_master.py).
+Calcula todo con kpis.py. No consulta Notion: solo muestra lo último que guardó la foto diaria.
 """
 from __future__ import annotations
 
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -78,6 +80,57 @@ def _firma(raiz: Path, config: dict) -> tuple:
 def _cargar(raiz: str, processed: str, firma: tuple) -> dict:
     """La firma (fecha de modificación de los CSV) invalida el caché cuando hay una foto nueva."""
     return kpis.cargar_datos(Path(raiz), {"rutas": {"processed": processed}})
+
+
+def _hay_db_ro() -> bool:
+    """¿Hay credencial de solo lectura? Se busca en st.secrets, en el entorno y en .env."""
+    try:
+        if "SUPABASE_DB_URL_RO" in st.secrets:      # db.conectar lee la variable del entorno
+            os.environ.setdefault("SUPABASE_DB_URL_RO", str(st.secrets["SUPABASE_DB_URL_RO"]))
+    except Exception:  # noqa: BLE001 - sin secrets.toml Streamlit lanza una excepción
+        pass
+    from dotenv import load_dotenv
+
+    load_dotenv(RAIZ / ".env")
+    return bool(os.environ.get("SUPABASE_DB_URL_RO"))
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def _leer_db(config_yaml: dict) -> tuple[dict, dict]:
+    """Datos y config desde Supabase (rol de solo lectura). Siempre cierra la conexión."""
+    import db
+
+    conn = db.conectar(solo_lectura=True)
+    try:
+        return db.cargar_datos_db(conn), db.config_desde_db(conn, config_yaml)
+    finally:
+        conn.close()
+
+
+def _cargar_origen(raiz: Path, config_yaml: dict) -> tuple[dict, dict, str]:
+    """(datos, config, fuente). Supabase si hay credencial; si no o si falla, los CSV locales.
+
+    Los mensajes visibles nunca incluyen la cadena de conexión ni el texto de la excepción.
+    """
+    fallo_db = False
+    if _hay_db_ro():
+        try:
+            datos, config = _leer_db(config_yaml)
+            return datos, config, "Supabase"
+        except Exception as e:  # noqa: BLE001 - se informa solo el tipo, nunca el mensaje crudo
+            fallo_db = True
+            print(f"Supabase no disponible ({type(e).__name__}).", file=sys.stderr)
+
+    firma = _firma(raiz, config_yaml)
+    if any(mtime for _, mtime in firma):
+        if fallo_db:
+            st.warning("No se pudo leer Supabase; se muestran datos locales.")
+        return _cargar(str(raiz), config_yaml["rutas"]["processed"], firma), config_yaml, "CSV local"
+
+    st.error("Por ahora no hay datos para mostrar"
+             + (": no se pudo leer Supabase y tampoco hay archivos locales." if fallo_db else "."))
+    st.info(vista.aviso_ultima_foto(None, None, None))
+    st.stop()
 
 
 # ----------------------------------------------------------------- gráficos ---
@@ -371,7 +424,6 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
     if config is None:
         from extract.notion_client import cargar_config
         config = cargar_config()
-    equipo = Equipo(config)
     hoy = datetime.now(ZoneInfo(config.get("zona_horaria", "America/Lima"))).date()
 
     encabezado, recargar = st.columns([6, 1])
@@ -382,7 +434,9 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
             st.cache_data.clear()
             st.rerun()
 
-    datos = _cargar(str(raiz), config["rutas"]["processed"], _firma(raiz, config))
+    datos, config, fuente = _cargar_origen(raiz, config)   # config: el de la base si se usó
+    equipo = Equipo(config)
+    st.caption(f"Fuente: {fuente}")
     ultima = vista.ultima_corrida(datos["registro"])
     if ultima is None:
         st.info(vista.aviso_ultima_foto(None, equipo, hoy))
@@ -443,7 +497,7 @@ def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
             solo_iniciadas=solo_ini, dia=dia, rango_activo=filtrar_rango, momento=momento,
         )
     except ValueError as e:
-        st.error(f"Los CSV no tienen el formato esperado: {e}")
+        st.error(f"Los datos de {fuente} no tienen el formato esperado: {e}")
         st.stop()
 
     _seccion("Ocupabilidad diaria", _diaria, r)

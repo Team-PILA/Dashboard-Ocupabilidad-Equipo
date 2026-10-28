@@ -1,0 +1,56 @@
+name: Foto diaria de ocupabilidad
+
+on:
+  schedule:
+    - cron: "30 13 * * 1-5"   # 8:30 Lima (UTC-5): foto de la mañana
+    - cron: "30 22 * * 1-5"   # 17:30 Lima: foto de cierre
+  workflow_dispatch:
+    inputs:
+      momento:
+        description: "Momento de la foto (auto = según la hora de Lima)"
+        type: choice
+        options: [auto, manana, cierre]
+        default: auto
+      fecha:
+        description: "Fecha AAAA-MM-DD (vacío = hoy en Lima)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: foto-ocupabilidad
+  cancel-in-progress: false
+
+jobs:
+  foto:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Extraer de Notion y subir a la base
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          # Las entradas llegan por variables de entorno (no se interpolan en el script).
+          MOMENTO: ${{ inputs.momento }}
+          FECHA: ${{ inputs.fecha }}
+        run: |
+          args=(--extraer --subir --solo-db)
+          if [ -n "$MOMENTO" ] && [ "$MOMENTO" != "auto" ]; then
+            args+=(--momento "$MOMENTO")
+          fi
+          if [ -n "$FECHA" ]; then
+            args+=(--fecha "$FECHA")
+          fi
+          python build_master.py "${args[@]}"

@@ -370,3 +370,139 @@ def test_snapshots_y_registro_antiguos_sin_momento_se_leen_como_cierre():
         bm.registrar_corrida(ruta, {"fecha": "2026-10-20", "momento": "manana", "ejecutado_en": "y", "ok": True})
         reg = pd.read_csv(ruta, dtype=str)
         assert sorted(reg["momento"]) == ["cierre", "manana"]
+
+
+# ------------------------------------------------------------ base de datos ---
+
+class _ConnFalsa:
+    def __init__(self):
+        self.cerrada = False
+
+    def close(self):
+        self.cerrada = True
+
+
+def _espiar_guardar(monkeypatch, raiz, falla=False):
+    import db
+
+    llamadas = []
+
+    def guardar(conn, foto, registro, estado, dim=None):
+        llamadas.append({
+            "csv_existian": (raiz / "data" / "snapshots").exists()
+            or (raiz / "data/processed/registro_corridas.csv").exists(),
+            "filas": len(foto), "momento": registro["momento"], "dim": dim,
+        })
+        if falla:
+            raise RuntimeError("falla simulada de la base")
+
+    monkeypatch.setattr(db, "guardar_foto", guardar)
+    return llamadas
+
+
+def test_subir_guarda_en_la_base_antes_de_escribir_csv(monkeypatch):
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        llamadas = _espiar_guardar(monkeypatch, raiz)
+        conn = _ConnFalsa()
+        r = _correr(raiz, subir=True, conn=conn)
+        assert len(llamadas) == 1 and llamadas[0]["csv_existian"] is False
+        assert llamadas[0]["dim"] is None                       # no hay dim_intervenciones.csv
+        assert r["subido_a_db"] is True and r["csv_escritos"] is True
+        assert (raiz / "data/snapshots/snapshot_2026-10-22.csv").exists()
+        assert not conn.cerrada                                  # una conexión inyectada no se cierra
+
+
+def test_subir_lee_dim_si_existe(monkeypatch):
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        pd.DataFrame([{"proyecto_id": "p1", "proyecto": "Proy 1", "tipo_proyecto": "x",
+                       "status": "s", "sponsor": None, "product_owner": "PO"}]).to_csv(
+            raiz / "data/processed/dim_intervenciones.csv", index=False, encoding="utf-8-sig")
+        llamadas = _espiar_guardar(monkeypatch, raiz)
+        _correr(raiz, subir=True, conn=_ConnFalsa())
+        assert len(llamadas[0]["dim"]) == 1
+
+
+def test_si_guardar_foto_falla_no_se_escribe_ningun_csv(monkeypatch):
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        _espiar_guardar(monkeypatch, raiz, falla=True)
+        try:
+            _correr(raiz, subir=True, conn=_ConnFalsa())
+        except RuntimeError as e:
+            assert "falla simulada" in str(e)
+        else:
+            raise AssertionError("Debió fallar")
+        assert not (raiz / "data" / "snapshots").exists()
+        assert not (raiz / "data/processed/registro_corridas.csv").exists()
+        assert not (raiz / "data/processed/estado_actual.csv").exists()
+        assert not (raiz / "data/processed/historico_horas_diarias.csv").exists()
+
+
+def test_solo_db_no_escribe_csv_y_implica_subir(monkeypatch):
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        llamadas = _espiar_guardar(monkeypatch, raiz)
+        r = _correr(raiz, solo_db=True, conn=_ConnFalsa())
+        assert len(llamadas) == 1
+        assert r["subido_a_db"] is True and r["csv_escritos"] is False
+        assert not (raiz / "data" / "snapshots").exists()
+        assert not (raiz / "data/processed/registro_corridas.csv").exists()
+
+
+def test_sin_subir_no_toca_la_base(monkeypatch):
+    import db
+
+    monkeypatch.setattr(db, "conectar", lambda *a, **k: (_ for _ in ()).throw(AssertionError("conectó")))
+    monkeypatch.setattr(db, "guardar_foto", lambda *a, **k: (_ for _ in ()).throw(AssertionError("subió")))
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        r = _correr(raiz)
+        assert r["subido_a_db"] is False and r["csv_escritos"] is True
+        assert (raiz / "data/snapshots/snapshot_2026-10-22.csv").exists()
+
+
+def test_conexion_propia_se_cierra_aunque_falle(monkeypatch):
+    import db
+
+    conn = _ConnFalsa()
+    monkeypatch.setattr(db, "conectar", lambda *a, **k: conn)
+    with tempfile.TemporaryDirectory() as t:
+        raiz = Path(t)
+        _escribir(raiz, _datos_dia1())
+        _espiar_guardar(monkeypatch, raiz, falla=True)
+        try:
+            _correr(raiz, subir=True)
+        except RuntimeError:
+            pass
+        assert conn.cerrada
+
+
+def test_verificar_compara_filas_y_horas():
+    class Cur:
+        def __init__(self, filas): self.filas = filas
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def execute(self, sql, p=None): pass
+        def fetchall(self): return self.filas
+
+    class Conn:
+        def __init__(self, filas): self.filas = filas
+        def cursor(self): return Cur(self.filas)
+
+    with tempfile.TemporaryDirectory() as t:
+        snaps = Path(t)
+        pd.DataFrame({"horas_hoy": ["3.0", "2.5"]}).to_csv(snaps / "snapshot_2026-10-22.csv", index=False)
+        pd.DataFrame({"horas_hoy": ["1.0"]}).to_csv(snaps / "snapshot_2026-10-23_manana.csv", index=False)
+        bien = [(date(2026, 10, 22), "cierre", 2, 5.5), (date(2026, 10, 23), "manana", 1, 1.0)]
+        filas, ok = bm.verificar_contra_db(Conn(bien), snaps)
+        assert ok and [f["momento"] for f in filas] == ["cierre", "manana"]
+        mal = [(date(2026, 10, 22), "cierre", 2, 5.0)]          # suma distinta y falta la mañana
+        filas, ok = bm.verificar_contra_db(Conn(mal), snaps)
+        assert not ok and [f["resultado"] for f in filas] == ["DIFERENTE", "DIFERENTE"]
