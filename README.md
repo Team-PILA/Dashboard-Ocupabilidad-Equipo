@@ -67,6 +67,18 @@ sube la foto a Supabase (`--extraer --subir --solo-db`, sin escribir CSV). **El 
   un problema de conexión o de datos. Repetir la corrida es seguro: reemplaza la foto de ese día y momento.
   GitHub puede demorar unos minutos los horarios programados.
 
+## Acceso
+La app pide usuario y clave antes de leer cualquier dato. Si faltan las credenciales, no abre.
+En Streamlit (app > Settings > Secrets) o en `.streamlit/secrets.toml`:
+```toml
+APP_USUARIO = "usuario"
+APP_CLAVE = "una-clave-de-16-o-mas-caracteres"
+```
+Usa una clave de 16 caracteres o más. Tras 5 intentos fallidos el formulario se bloquea 60 segundos.
+
+En local, sin credenciales: `OCUPABILIDAD_SIN_CLAVE=1 streamlit run app.py` (PowerShell:
+`$env:OCUPABILIDAD_SIN_CLAVE="1"; streamlit run app.py`). La variable solo vale si no hay `APP_USUARIO`/`APP_CLAVE`: si existen, siempre se pide la clave.
+
 ## Seguridad
 `.env` y `data/` no se suben al repo (están en `.gitignore`).
 

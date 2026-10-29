@@ -20,6 +20,7 @@ import streamlit as st
 
 import kpis
 import vista
+from acceso import exigir_acceso
 from capacidad import Equipo
 
 RAIZ = Path(__file__).resolve().parent
@@ -421,6 +422,7 @@ def _como_se_calcula(equipo: Equipo) -> None:
 
 def main(raiz: Path = RAIZ, config: dict | None = None) -> None:
     st.set_page_config(page_title="Ocupabilidad del Equipo", page_icon="📊", layout="wide")
+    exigir_acceso()      # nada de lo que sigue (config, datos, títulos) corre sin sesión válida
     if config is None:
         from extract.notion_client import cargar_config
         config = cargar_config()

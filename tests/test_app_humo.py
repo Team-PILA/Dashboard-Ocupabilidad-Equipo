@@ -45,21 +45,38 @@ def _falso_streamlit():
     st.button.return_value = False
     st.radio.side_effect = lambda label, options, index=0, **k: "cierre" if "cierre" in options else options[index]
     st.stop.side_effect = RuntimeError("st.stop")
+    st.secrets = {}                     # sin credenciales: con la variable de desarrollo, el acceso pasa
     return st
 
 
-def _importar_app():
-    previos = {k: sys.modules.get(k) for k in ("streamlit", "altair", "app")}
+def _importar_app(sin_clave: bool = True):
+    """sin_clave: modo desarrollo (OCUPABILIDAD_SIN_CLAVE=1) para que el acceso deje pasar."""
+    previos = {k: sys.modules.get(k) for k in ("streamlit", "altair", "app", "acceso")}
+    previos["_env_sin_clave"] = os.environ.get("OCUPABILIDAD_SIN_CLAVE")
+    previos["_env_creds"] = {k: os.environ.pop(k, None) for k in ("APP_USUARIO", "APP_CLAVE")}
+    if sin_clave:
+        os.environ["OCUPABILIDAD_SIN_CLAVE"] = "1"
+    else:
+        os.environ.pop("OCUPABILIDAD_SIN_CLAVE", None)
     st, alt = _falso_streamlit(), MagicMock()
     alt.datum = _Dato()
     sys.modules["streamlit"], sys.modules["altair"] = st, alt
     sys.modules.pop("app", None)
+    sys.modules.pop("acceso", None)     # que acceso.py se enlace al Streamlit simulado
     app = importlib.import_module("app")
     app._hay_db_ro = lambda: False      # por defecto, sin base (que .env no haga conectar a las pruebas)
     return app, st, previos
 
 
 def _restaurar(previos):
+    for k, v in previos.pop("_env_creds", {}).items():
+        if v is not None:
+            os.environ[k] = v
+    env = previos.pop("_env_sin_clave", None)
+    if env is None:
+        os.environ.pop("OCUPABILIDAD_SIN_CLAVE", None)
+    else:
+        os.environ["OCUPABILIDAD_SIN_CLAVE"] = env
     for k, v in previos.items():
         if v is None:
             sys.modules.pop(k, None)
