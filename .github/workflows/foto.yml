@@ -2,8 +2,8 @@ name: Foto diaria de ocupabilidad
 
 on:
   schedule:
-    - cron: "30 13 * * 1-5"   # 8:30 Lima (UTC-5): foto de la mañana
-    - cron: "30 22 * * 1-5"   # 17:30 Lima: foto de cierre
+    - cron: "32 13 * * 1-5"   # 8:32 Lima (UTC-5): foto de la mañana
+    - cron: "32 22 * * 1-5"   # 17:32 Lima: foto de cierre
   workflow_dispatch:
     inputs:
       momento:

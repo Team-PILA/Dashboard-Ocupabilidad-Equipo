@@ -14,7 +14,7 @@ def _wf() -> dict:
 
 def test_dos_cron_en_dias_habiles_y_ejecucion_manual():
     on = _wf()["on"]
-    assert [s["cron"] for s in on["schedule"]] == ["30 13 * * 1-5", "30 22 * * 1-5"]
+    assert [s["cron"] for s in on["schedule"]] == ["32 13 * * 1-5", "32 22 * * 1-5"]
     entradas = on["workflow_dispatch"]["inputs"]
     assert entradas["momento"]["options"] == ["auto", "manana", "cierre"]
     assert entradas["momento"]["default"] == "auto"

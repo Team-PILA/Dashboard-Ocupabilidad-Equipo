@@ -13,7 +13,7 @@ Dashboard en Streamlit que mide la ocupabilidad del equipo a partir de las horas
 ## Cómo funciona
 Notion API → extractores en Python → CSV en `data/` → Streamlit.
 
-Cada día laborable a las 17:30 (hora de Lima) se toma una **foto** de la columna "Horas Asignadas Hoy" y se guarda en `data/snapshots/`. Con esas fotos se arma el histórico.
+Cada día laborable a las 17:32 (hora de Lima) se toma una **foto** de la columna "Horas Asignadas Hoy" y se guarda en `data/snapshots/`. Con esas fotos se arma el histórico.
 
 ## Requisitos
 - Python 3.14 (3.15 aún no tiene instalador de PyYAML para Windows)
