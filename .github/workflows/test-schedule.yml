@@ -2,9 +2,12 @@
 name: Test del programador GitHub Actions
 
 on:
+  push:
+    branches:
+      - master
+
   schedule:
     - cron: "*/5 * * * *"
-      timezone: "America/Lima"
 
   workflow_dispatch:
 
@@ -16,9 +19,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Confirmar ejecución automática
+      - name: Confirmar ejecución
         run: |
-          echo "El programador de GitHub funciona"
+          echo "El workflow se ha ejecutado"
           echo "Evento: $GITHUB_EVENT_NAME"
           echo "Fecha UTC: $(date -u)"
           echo "Fecha Lima: $(TZ=America/Lima date)"
