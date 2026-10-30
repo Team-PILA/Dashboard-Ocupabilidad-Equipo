@@ -1,16 +1,31 @@
+
 name: Foto diaria de ocupabilidad
 
 on:
   schedule:
-    - cron: "32 13 * * 1-5"   # 8:32 Lima (UTC-5): foto de la mañana
-    - cron: "32 22 * * 1-5"   # 17:32 Lima: foto de cierre
+    # Foto de la mañana: 08:30, hora de Lima
+    - cron: "30 8 * * 1-5"
+      timezone: "America/Lima"
+
+    # Foto de cierre: 17:30, hora de Lima
+    - cron: "30 17 * * 1-5"
+      timezone: "America/Lima"
+
+    # Foto de testeo: 20:32, hora de Lima
+    - cron: "32 20 * * 1-5"
+      timezone: "America/Lima"
+
   workflow_dispatch:
     inputs:
       momento:
         description: "Momento de la foto (auto = según la hora de Lima)"
         type: choice
-        options: [auto, manana, cierre]
+        options:
+          - auto
+          - manana
+          - cierre
         default: auto
+
       fecha:
         description: "Fecha AAAA-MM-DD (vacío = hoy en Lima)"
         type: string
@@ -27,10 +42,13 @@ jobs:
   foto:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
@@ -38,19 +56,28 @@ jobs:
       - name: Instalar dependencias
         run: pip install -r requirements.txt
 
-      - name: Extraer de Notion y subir a la base
+      - name: Diagnóstico de ejecución
+        run: |
+          echo "Evento: $GITHUB_EVENT_NAME"
+          echo "Fecha UTC: $(date -u)"
+          echo "Fecha Lima: $(TZ=America/Lima date)"
+
+      - name: Extraer de Notion y subir a Supabase
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-          # Las entradas llegan por variables de entorno (no se interpolan en el script).
-          MOMENTO: ${{ inputs.momento }}
-          FECHA: ${{ inputs.fecha }}
+          MOMENTO: ${{ inputs.momento || 'auto' }}
+          FECHA: ${{ inputs.fecha || '' }}
+
         run: |
           args=(--extraer --subir --solo-db)
+
           if [ -n "$MOMENTO" ] && [ "$MOMENTO" != "auto" ]; then
             args+=(--momento "$MOMENTO")
           fi
+
           if [ -n "$FECHA" ]; then
             args+=(--fecha "$FECHA")
           fi
+
           python build_master.py "${args[@]}"
