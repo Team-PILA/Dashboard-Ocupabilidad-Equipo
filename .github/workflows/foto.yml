@@ -3,16 +3,16 @@ name: Foto diaria de ocupabilidad
 
 on:
   schedule:
-    # Foto de la mañana: 08:30, hora de Lima
-    - cron: "30 8 * * 1-5"
-      timezone: "America/Lima"
+    # # Foto de la mañana: 08:30, hora de Lima
+    # - cron: "30 8 * * 1-5"
+    #   timezone: "America/Lima"
 
-    # Foto de cierre: 17:30, hora de Lima
-    - cron: "30 17 * * 1-5"
-      timezone: "America/Lima"
+    # # Foto de cierre: 17:30, hora de Lima
+    # - cron: "30 17 * * 1-5"
+    #   timezone: "America/Lima"
 
     # Foto de testeo: 20:32, hora de Lima
-    - cron: "32 20 * * 1-5"
+    - cron: "*/5 * * * *"
       timezone: "America/Lima"
 
   workflow_dispatch:
