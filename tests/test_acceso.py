@@ -60,10 +60,31 @@ def test_sin_secrets_y_sin_variable_de_desarrollo_falla_cerrada(monkeypatch):
     assert not st.text_input.called
 
 
-def test_falta_solo_una_credencial_tambien_falla_cerrada(monkeypatch):
-    acceso, st = _modulo(monkeypatch, secrets={"APP_USUARIO": USUARIO})
+@pytest.mark.parametrize("secrets", [
+    {"APP_USUARIO": USUARIO},
+    {"APP_CLAVE": CLAVE},
+])
+@pytest.mark.parametrize("bypass", [None, "1"])
+def test_falta_solo_una_credencial_tambien_falla_cerrada(monkeypatch, secrets, bypass):
+    if bypass is not None:
+        monkeypatch.setenv("OCUPABILIDAD_SIN_CLAVE", bypass)
+    acceso, st = _modulo(monkeypatch, secrets=secrets)
     _detiene(acceso)
-    assert "Acceso no configurado" in str(st.error.call_args)
+    assert "Configuración de acceso incompleta" in str(st.error.call_args)
+    assert not st.text_input.called
+
+
+@pytest.mark.parametrize("usuario", [USUARIO, None, ""])
+@pytest.mark.parametrize("clave", [CLAVE, None, ""])
+@pytest.mark.parametrize("bypass", ["1", "0", "", "true", " 1", None])
+def test_decidir_acceso_con_todas_las_combinaciones(monkeypatch, usuario, clave, bypass):
+    acceso, _ = _modulo(monkeypatch)
+    decision = acceso.decidir_acceso(usuario, clave, bypass)
+    esperado = ("login" if usuario and clave else
+                "bloqueado" if usuario or clave else
+                "abierto" if bypass == "1" else "bloqueado")
+    assert decision == esperado
+    assert (decision == "abierto") == (not usuario and not clave and bypass == "1")
 
 
 def test_variable_de_desarrollo_deja_pasar(monkeypatch):

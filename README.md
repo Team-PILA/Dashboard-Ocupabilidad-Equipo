@@ -68,7 +68,7 @@ sube la foto a Supabase (`--extraer --subir --solo-db`, sin escribir CSV). **El 
   GitHub puede demorar unos minutos los horarios programados.
 
 ## Acceso
-La app pide usuario y clave antes de leer cualquier dato. Si faltan las credenciales, no abre.
+La app pide usuario y clave antes de leer cualquier dato cuando ambas credenciales están configuradas. Si solo existe una, muestra «Configuración de acceso incompleta» y se detiene.
 En Streamlit (app > Settings > Secrets) o en `.streamlit/secrets.toml`:
 ```toml
 APP_USUARIO = "usuario"
@@ -77,7 +77,7 @@ APP_CLAVE = "una-clave-de-16-o-mas-caracteres"
 Usa una clave de 16 caracteres o más. Tras 5 intentos fallidos el formulario se bloquea 60 segundos.
 
 En local, sin credenciales: `OCUPABILIDAD_SIN_CLAVE=1 streamlit run app.py` (PowerShell:
-`$env:OCUPABILIDAD_SIN_CLAVE="1"; streamlit run app.py`). La variable solo vale si no hay `APP_USUARIO`/`APP_CLAVE`: si existen, siempre se pide la clave.
+`$env:OCUPABILIDAD_SIN_CLAVE="1"; streamlit run app.py`). El bypass solo funciona si `APP_USUARIO` y `APP_CLAVE` están ambas ausentes o vacías y la variable vale exactamente `1`. Sin ninguna credencial ni bypass, la app muestra «Acceso no configurado» y se detiene. Si existe una sola credencial, el bypass nunca aplica.
 
 ## Seguridad
 `.env` y `data/` no se suben al repo (están en `.gitignore`).

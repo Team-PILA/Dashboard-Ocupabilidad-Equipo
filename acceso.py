@@ -4,7 +4,8 @@
     exigir_acceso()      # justo después de st.set_page_config(...)
 
 Credenciales: APP_USUARIO y APP_CLAVE en st.secrets o, si no están, en el entorno.
-Falla cerrada: si faltan, la app no abre. Solo OCUPABILIDAD_SIN_CLAVE=1 (desarrollo local) la deja pasar.
+Falla cerrada: con una sola credencial, la app no abre. Sin ninguna, solo
+OCUPABILIDAD_SIN_CLAVE=1 (desarrollo local) la deja pasar.
 Los mensajes visibles nunca incluyen el usuario, la clave ni indican qué campo falló.
 """
 from __future__ import annotations
@@ -34,6 +35,15 @@ def _iguales(recibido: str, esperado: str) -> bool:
     return hmac.compare_digest(recibido.encode("utf-8"), esperado.encode("utf-8"))
 
 
+def decidir_acceso(usuario: str | None, clave: str | None, bypass: str | None) -> str:
+    """Decide el acceso sin consultar Streamlit ni el entorno."""
+    if usuario and clave:
+        return "login"
+    if usuario or clave:
+        return "bloqueado"
+    return "abierto" if bypass == "1" else "bloqueado"
+
+
 def _cerrar_sesion() -> None:
     st.session_state.clear()
     st.rerun()
@@ -42,10 +52,11 @@ def _cerrar_sesion() -> None:
 def exigir_acceso() -> None:
     """Detiene el script (st.stop) mientras no haya una sesión válida."""
     usuario, clave = _secreto("APP_USUARIO"), _secreto("APP_CLAVE")
-    if not usuario or not clave:
-        if os.environ.get("OCUPABILIDAD_SIN_CLAVE") == "1":
-            return       # solo desarrollo local: con credenciales configuradas siempre se pide la clave
-        st.error("Acceso no configurado")
+    decision = decidir_acceso(usuario, clave, os.environ.get("OCUPABILIDAD_SIN_CLAVE"))
+    if decision == "abierto":
+        return
+    if decision == "bloqueado":
+        st.error("Configuración de acceso incompleta" if usuario or clave else "Acceso no configurado")
         st.stop()
         return
 
