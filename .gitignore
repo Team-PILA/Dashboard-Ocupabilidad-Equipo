@@ -1,8 +1,52 @@
+
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Testing and coverage
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Python tooling caches
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Temporary files and logs
+*.log
+*.tmp
+*.bak
+
+# Local data
 data/
+
+# Streamlit secrets
 .streamlit/secrets.toml
+
+# IDE
+.idea/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Local instructions
 /CLAUDE.md
