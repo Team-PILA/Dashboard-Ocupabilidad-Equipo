@@ -58,6 +58,15 @@ jobs:
           echo "Fecha UTC: $(date -u)"
           echo "Fecha Lima: $(TZ=America/Lima date)"
 
+      - name: Validar fecha de la foto
+        env:
+          FECHA: ${{ inputs.fecha || '' }}
+        run: |
+          if [ -n "$FECHA" ] && [ "$FECHA" != "$(TZ=America/Lima date +%F)" ]; then
+            echo "No se puede sacar la foto de una fecha pasada: Notion no guarda el estado histórico. Deja la fecha vacía para usar hoy."
+            exit 1
+          fi
+
       - name: Extraer de Notion y subir a Supabase
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
