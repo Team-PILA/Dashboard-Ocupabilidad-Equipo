@@ -12,13 +12,27 @@ def _wf() -> dict:
     return wf
 
 
-def test_dos_cron_en_dias_habiles_y_ejecucion_manual():
+def test_ejecucion_manual_con_inputs_actuales():
     on = _wf()["on"]
-    assert [s["cron"] for s in on["schedule"]] == ["32 13 * * 1-5", "32 22 * * 1-5"]
+    assert list(on) == ["workflow_dispatch"]
     entradas = on["workflow_dispatch"]["inputs"]
+    assert set(entradas) == {"momento", "fecha", "backfill"}
     assert entradas["momento"]["options"] == ["auto", "manana", "cierre"]
     assert entradas["momento"]["default"] == "auto"
-    assert "fecha" in entradas
+    assert entradas["fecha"]["type"] == "string"
+    assert entradas["backfill"]["type"] == "boolean"
+    assert entradas["backfill"]["default"] is False
+
+
+def test_validacion_de_fecha_activa_sin_backfill():
+    pasos = _wf()["jobs"]["foto"]["steps"]
+    validacion = next(p for p in pasos if p["name"] == "Validar fecha de la foto")
+    extraccion = next(p for p in pasos if p["name"] == "Extraer de Notion y subir a Supabase")
+    assert pasos.index(validacion) < pasos.index(extraccion)
+    assert validacion["env"]["BACKFILL"] == "${{ inputs.backfill && 'true' || 'false' }}"
+    assert '[ "$BACKFILL" != "true" ]' in validacion["run"]
+    assert '[ -n "$FECHA" ]' in validacion["run"]
+    assert "exit 1" in validacion["run"]
 
 
 def test_un_job_con_limites_y_permisos_minimos():
